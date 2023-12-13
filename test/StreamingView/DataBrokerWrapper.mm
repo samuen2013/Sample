@@ -114,7 +114,7 @@ SCODE __stdcall DataBrokerAVCallBack(DWORD_PTR dwContext, TMediaDataPacketInfo *
     opt.pzServerType = (char *)[@"Darwin" UTF8String];
     opt.pzIPAddr = (char *)[ip UTF8String];
     opt.dwFlags = eConOptProtocolAndMediaType | eConOptHttpPort | (eConOptStatusCallback | eConOptStatusContext) | (eConOptAVCallback | eConOptAVContext);
-    opt.pzUID = (char *)[@"root" UTF8String];
+    opt.pzUID = (char *)[@"admin" UTF8String];
     opt.pzPWD = (char *)[@"vssdtest123" UTF8String];
     
     scRet = DataBroker_SetConnectionOptions(_g_hConn, &opt);
@@ -152,8 +152,8 @@ SCODE __stdcall DataBrokerAVCallBack(DWORD_PTR dwContext, TMediaDataPacketInfo *
 
 - (void)startNVRLiveStreaming:(NSString *)ip port:(NSInteger)port streamIndex:(NSInteger)streamIndex channelIndex:(NSInteger)channelIndex
 {
-    NSString *liveUrl = [NSString stringWithFormat:@"/live?stream=%ld&channel=%ld", (long)streamIndex, (long)channelIndex];
-//    NSString *liveUrl = [NSString stringWithFormat:@"/Media/Live/Normal?camera=C_%ld&streamindex=%ld", (long)channelIndex + 1, (long)streamIndex + 1];
+//    NSString *liveUrl = [NSString stringWithFormat:@"/live?stream=%ld&channel=%ld", (long)streamIndex, (long)channelIndex];
+    NSString *liveUrl = [NSString stringWithFormat:@"/Media/Live/Normal?camera=C_%ld&streamindex=%ld", (long)channelIndex + 1, (long)streamIndex + 1];
     [self startStreaming:ip port:port streamingUrl:liveUrl];
 }
 

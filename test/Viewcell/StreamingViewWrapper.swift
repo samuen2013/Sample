@@ -10,8 +10,6 @@ import SwiftUI
 import Combine
 
 protocol StreamingActionProvider {
-    var action: StreamingViewAction? { get }
-    var actionPublished: Published<StreamingViewAction?> { get }
     var actionPublisher: Published<StreamingViewAction?>.Publisher { get }
 }
 
@@ -105,7 +103,7 @@ extension StreamingViewWrapper {
         }
         
         func didChangeStreamingVideoCodec(_ codec: StreamingVideoCodec) {
-            logger.trace("\("fisheye mount type change to \(codec)")")
+            logger.trace("\("streaming video codec change to \(codec)")")
         }
         
         func didChangeFisheyeMountType(_ type: FisheyeMountType) {
