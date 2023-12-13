@@ -1,0 +1,40 @@
+//
+//  iOSCharmander-Prefix.pch
+//  iOSCharmander
+//
+//  Created by 曹盛淵 on 2021/6/4.
+//
+
+#ifdef __OBJC__
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <MediaPlayer/MediaPlayer.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import <VideoToolbox/VideoToolbox.h>
+
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <MobileCoreServices/MobileCoreServices.h>
+#import <SpriteKit/SpriteKit.h>
+#import <Photos/Photos.h>
+#import <WebKit/WebKit.h>
+#import <SafariServices/SafariServices.h>
+#import <Availability.h>
+#endif
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+
+#ifdef __cplusplus
+#include "SDKUtility/BitstreamReader.hpp"
+#include "SDKUtility/ParseDataPacket.hpp"
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/date_time/local_time/local_time.hpp>
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#endif
+
+#pragma clang diagnostic pop

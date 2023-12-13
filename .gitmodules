@@ -1,0 +1,3 @@
+[submodule "VIVOTEKiOSSDK"]
+	path = VIVOTEKiOSSDK
+	url = git@github.com:VIVOTEK-IT/VIVOTEKiOSSDK.git

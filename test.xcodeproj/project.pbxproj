@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,6 +11,66 @@
 		5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5090A40C293DDED400AE5AFF /* ContentView.swift */; };
 		5090A40F293DDED500AE5AFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5090A40E293DDED500AE5AFF /* Assets.xcassets */; };
 		5090A413293DDED500AE5AFF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5090A412293DDED500AE5AFF /* Preview Assets.xcassets */; };
+		50D432DE2B2989BA006664E4 /* StreamingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432A82B2989BA006664E4 /* StreamingView.swift */; };
+		50D432DF2B2989BA006664E4 /* DataBrokerWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432A92B2989BA006664E4 /* DataBrokerWrapper.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		50D432E02B2989BA006664E4 /* FrameParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432AD2B2989BA006664E4 /* FrameParser.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		50D432E12B2989BA006664E4 /* RemoteIOPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		50D432E22B2989BA006664E4 /* FrameManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B42B2989BA006664E4 /* FrameManager.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		50D432E32B2989BA006664E4 /* HWDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B52B2989BA006664E4 /* HWDecoder.mm */; };
+		50D432E42B2989BA006664E4 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B72B2989BA006664E4 /* NSData+Hex.m */; };
+		50D432E52B2989BA006664E4 /* G726.c in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B92B2989BA006664E4 /* G726.c */; };
+		50D432E62B2989BA006664E4 /* FisheyeLibWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432BC2B2989BA006664E4 /* FisheyeLibWrapper.swift */; };
+		50D432E72B2989BA006664E4 /* FisheyeMeshImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432BD2B2989BA006664E4 /* FisheyeMeshImpl.swift */; };
+		50D432E82B2989BA006664E4 /* FisheyePositionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432BE2B2989BA006664E4 /* FisheyePositionController.swift */; };
+		50D432E92B2989BA006664E4 /* FisheyeMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432BF2B2989BA006664E4 /* FisheyeMesh.swift */; };
+		50D432EA2B2989BA006664E4 /* fisheye_version.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C02B2989BA006664E4 /* fisheye_version.swift */; };
+		50D432EB2B2989BA006664E4 /* FisheyeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C12B2989BA006664E4 /* FisheyeProtocol.swift */; };
+		50D432EC2B2989BA006664E4 /* FisheyePTZController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C22B2989BA006664E4 /* FisheyePTZController.swift */; };
+		50D432ED2B2989BA006664E4 /* FrameManagerWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C42B2989BA006664E4 /* FrameManagerWrapper.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		50D432EE2B2989BA006664E4 /* BeautyFistWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C72B2989BA006664E4 /* BeautyFistWrapper.swift */; };
+		50D432EF2B2989BA006664E4 /* MetalTextureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C82B2989BA006664E4 /* MetalTextureCache.swift */; };
+		50D432F02B2989BA006664E4 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432C92B2989BA006664E4 /* MetalRenderer.swift */; };
+		50D432F12B2989BA006664E4 /* UIBezierPath+Arrow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432CC2B2989BA006664E4 /* UIBezierPath+Arrow.swift */; };
+		50D432F22B2989BA006664E4 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432CE2B2989BA006664E4 /* MetalView.swift */; };
+		50D432F32B2989BA006664E4 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D12B2989BA006664E4 /* Shaders.metal */; };
+		50D432F42B2989BA006664E4 /* GLViewportCtrWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D22B2989BA006664E4 /* GLViewportCtrWrapper.mm */; };
+		50D432F52B2989BA006664E4 /* MetalBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D42B2989BA006664E4 /* MetalBuffer.swift */; };
+		50D432F62B2989BA006664E4 /* LCTextLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D52B2989BA006664E4 /* LCTextLayer.swift */; };
+		50D432F72B2989BA006664E4 /* MTLTexture+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D62B2989BA006664E4 /* MTLTexture+Extension.swift */; };
+		50D432F82B2989BA006664E4 /* StreamingStatus+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D72B2989BA006664E4 /* StreamingStatus+Extension.swift */; };
+		50D432F92B2989BA006664E4 /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432D92B2989BA006664E4 /* Metadata.swift */; };
+		50D432FA2B2989BA006664E4 /* ProjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432DA2B2989BA006664E4 /* ProjectModel.swift */; };
+		50D432FB2B2989BA006664E4 /* Vector2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432DB2B2989BA006664E4 /* Vector2D.swift */; };
+		50D432FC2B2989BA006664E4 /* Point3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432DC2B2989BA006664E4 /* Point3D.swift */; };
+		50D432FF2B298B48006664E4 /* MainProfile in Frameworks */ = {isa = PBXBuildFile; productRef = 50D432FE2B298B48006664E4 /* MainProfile */; };
+		50D433012B298B48006664E4 /* boost in Frameworks */ = {isa = PBXBuildFile; productRef = 50D433002B298B48006664E4 /* boost */; };
+		50D433032B298B48006664E4 /* ffmpeg in Frameworks */ = {isa = PBXBuildFile; productRef = 50D433022B298B48006664E4 /* ffmpeg */; };
+		50D433052B298B48006664E4 /* opencv2 in Frameworks */ = {isa = PBXBuildFile; productRef = 50D433042B298B48006664E4 /* opencv2 */; };
+		50D433072B298B48006664E4 /* openssl in Frameworks */ = {isa = PBXBuildFile; productRef = 50D433062B298B48006664E4 /* openssl */; };
+		50D4330A2B298D19006664E4 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433092B298D19006664E4 /* extension.swift */; };
+		50D433102B2995AB006664E4 /* libiconv.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 50D4330F2B2995AB006664E4 /* libiconv.2.tbd */; };
+		50D433192B299659006664E4 /* ViewCellStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433132B299659006664E4 /* ViewCellStatus.swift */; };
+		50D4331A2B299659006664E4 /* StreamingViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433142B299659006664E4 /* StreamingViewAction.swift */; };
+		50D4331B2B299659006664E4 /* StreamingViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433152B299659006664E4 /* StreamingViewWrapper.swift */; };
+		50D433272B2996A4006664E4 /* CharmanderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433222B2996A4006664E4 /* CharmanderError.swift */; };
+		50D4332A2B2996A4006664E4 /* CharmanderLogType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433252B2996A4006664E4 /* CharmanderLogType.swift */; };
+		50D4332C2B299C60006664E4 /* NavigationBarColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4332B2B299C60006664E4 /* NavigationBarColor.swift */; };
+		50D4333E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4332E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift */; };
+		50D4333F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4332F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift */; };
+		50D433402B299F08006664E4 /* OvalGhostIconSmallSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433302B299F08006664E4 /* OvalGhostIconSmallSecondaryButtonStyle.swift */; };
+		50D433412B299F08006664E4 /* ToolBarButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433312B299F08006664E4 /* ToolBarButtonStyle.swift */; };
+		50D433422B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433322B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift */; };
+		50D433432B299F08006664E4 /* SheetMenuButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433332B299F08006664E4 /* SheetMenuButtonStyle.swift */; };
+		50D433442B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433342B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift */; };
+		50D433452B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433352B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift */; };
+		50D433462B299F08006664E4 /* BottomActionButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433362B299F08006664E4 /* BottomActionButtonStyle.swift */; };
+		50D433472B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433372B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift */; };
+		50D433482B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433382B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift */; };
+		50D433492B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D433392B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift */; };
+		50D4334A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4333A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift */; };
+		50D4334B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4333B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift */; };
+		50D4334C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4333C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift */; };
+		50D4334D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4333D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +80,82 @@
 		5090A40E293DDED500AE5AFF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5090A410293DDED500AE5AFF /* test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = test.entitlements; sourceTree = "<group>"; };
 		5090A412293DDED500AE5AFF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		50D432A72B2989BA006664E4 /* FrameManagerWrapperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameManagerWrapperDelegate.h; sourceTree = "<group>"; };
+		50D432A82B2989BA006664E4 /* StreamingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamingView.swift; sourceTree = "<group>"; };
+		50D432A92B2989BA006664E4 /* DataBrokerWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DataBrokerWrapper.mm; sourceTree = "<group>"; };
+		50D432AB2B2989BA006664E4 /* NSData+Hex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Hex.h"; sourceTree = "<group>"; };
+		50D432AC2B2989BA006664E4 /* HWDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HWDecoder.h; sourceTree = "<group>"; };
+		50D432AD2B2989BA006664E4 /* FrameParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameParser.mm; sourceTree = "<group>"; };
+		50D432AE2B2989BA006664E4 /* AudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioDecoder.h; sourceTree = "<group>"; };
+		50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoteIOPlayer.h; sourceTree = "<group>"; };
+		50D432B12B2989BA006664E4 /* FrameManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameManager.h; sourceTree = "<group>"; };
+		50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RemoteIOPlayer.mm; sourceTree = "<group>"; };
+		50D432B32B2989BA006664E4 /* G726Decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = G726Decoder.h; sourceTree = "<group>"; };
+		50D432B42B2989BA006664E4 /* FrameManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameManager.mm; sourceTree = "<group>"; };
+		50D432B52B2989BA006664E4 /* HWDecoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HWDecoder.mm; sourceTree = "<group>"; };
+		50D432B62B2989BA006664E4 /* VideoDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecoder.h; sourceTree = "<group>"; };
+		50D432B72B2989BA006664E4 /* NSData+Hex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Hex.m"; sourceTree = "<group>"; };
+		50D432B82B2989BA006664E4 /* FrameParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameParser.h; sourceTree = "<group>"; };
+		50D432B92B2989BA006664E4 /* G726.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = G726.c; sourceTree = "<group>"; };
+		50D432BA2B2989BA006664E4 /* FrameManagerWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameManagerWrapper.h; sourceTree = "<group>"; };
+		50D432BC2B2989BA006664E4 /* FisheyeLibWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyeLibWrapper.swift; sourceTree = "<group>"; };
+		50D432BD2B2989BA006664E4 /* FisheyeMeshImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyeMeshImpl.swift; sourceTree = "<group>"; };
+		50D432BE2B2989BA006664E4 /* FisheyePositionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyePositionController.swift; sourceTree = "<group>"; };
+		50D432BF2B2989BA006664E4 /* FisheyeMesh.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyeMesh.swift; sourceTree = "<group>"; };
+		50D432C02B2989BA006664E4 /* fisheye_version.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fisheye_version.swift; sourceTree = "<group>"; };
+		50D432C12B2989BA006664E4 /* FisheyeProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyeProtocol.swift; sourceTree = "<group>"; };
+		50D432C22B2989BA006664E4 /* FisheyePTZController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FisheyePTZController.swift; sourceTree = "<group>"; };
+		50D432C32B2989BA006664E4 /* StreamingStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamingStatus.h; sourceTree = "<group>"; };
+		50D432C42B2989BA006664E4 /* FrameManagerWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameManagerWrapper.mm; sourceTree = "<group>"; };
+		50D432C52B2989BA006664E4 /* DataBrokerWrapperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataBrokerWrapperDelegate.h; sourceTree = "<group>"; };
+		50D432C72B2989BA006664E4 /* BeautyFistWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeautyFistWrapper.swift; sourceTree = "<group>"; };
+		50D432C82B2989BA006664E4 /* MetalTextureCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalTextureCache.swift; sourceTree = "<group>"; };
+		50D432C92B2989BA006664E4 /* MetalRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
+		50D432CA2B2989BA006664E4 /* MetadataDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetadataDrawable.h; sourceTree = "<group>"; };
+		50D432CB2B2989BA006664E4 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLView.h; sourceTree = "<group>"; };
+		50D432CC2B2989BA006664E4 /* UIBezierPath+Arrow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIBezierPath+Arrow.swift"; sourceTree = "<group>"; };
+		50D432CD2B2989BA006664E4 /* GLViewportCtrWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLViewportCtrWrapper.h; sourceTree = "<group>"; };
+		50D432CE2B2989BA006664E4 /* MetalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
+		50D432CF2B2989BA006664E4 /* VCARulesDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VCARulesDrawable.h; sourceTree = "<group>"; };
+		50D432D02B2989BA006664E4 /* GLViewportCtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLViewportCtr.h; sourceTree = "<group>"; };
+		50D432D12B2989BA006664E4 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		50D432D22B2989BA006664E4 /* GLViewportCtrWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLViewportCtrWrapper.mm; sourceTree = "<group>"; };
+		50D432D32B2989BA006664E4 /* EAGLViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLViewProtocol.h; sourceTree = "<group>"; };
+		50D432D42B2989BA006664E4 /* MetalBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalBuffer.swift; sourceTree = "<group>"; };
+		50D432D52B2989BA006664E4 /* LCTextLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LCTextLayer.swift; sourceTree = "<group>"; };
+		50D432D62B2989BA006664E4 /* MTLTexture+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MTLTexture+Extension.swift"; sourceTree = "<group>"; };
+		50D432D72B2989BA006664E4 /* StreamingStatus+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StreamingStatus+Extension.swift"; sourceTree = "<group>"; };
+		50D432D92B2989BA006664E4 /* Metadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
+		50D432DA2B2989BA006664E4 /* ProjectModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectModel.swift; sourceTree = "<group>"; };
+		50D432DB2B2989BA006664E4 /* Vector2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Vector2D.swift; sourceTree = "<group>"; };
+		50D432DC2B2989BA006664E4 /* Point3D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Point3D.swift; sourceTree = "<group>"; };
+		50D432DD2B2989BA006664E4 /* DataBrokerWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataBrokerWrapper.h; sourceTree = "<group>"; };
+		50D433082B298C2F006664E4 /* test-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "test-Bridging-Header.h"; sourceTree = "<group>"; };
+		50D433092B298D19006664E4 /* extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
+		50D4330B2B298F01006664E4 /* test-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "test-Prefix.pch"; sourceTree = "<group>"; };
+		50D4330F2B2995AB006664E4 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
+		50D433132B299659006664E4 /* ViewCellStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewCellStatus.swift; sourceTree = "<group>"; };
+		50D433142B299659006664E4 /* StreamingViewAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamingViewAction.swift; sourceTree = "<group>"; };
+		50D433152B299659006664E4 /* StreamingViewWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamingViewWrapper.swift; sourceTree = "<group>"; };
+		50D433222B2996A4006664E4 /* CharmanderError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharmanderError.swift; sourceTree = "<group>"; };
+		50D433252B2996A4006664E4 /* CharmanderLogType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharmanderLogType.swift; sourceTree = "<group>"; };
+		50D4332B2B299C60006664E4 /* NavigationBarColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationBarColor.swift; sourceTree = "<group>"; };
+		50D4332E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconNakedMediumSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D4332F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostLargeSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433302B299F08006664E4 /* OvalGhostIconSmallSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OvalGhostIconSmallSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433312B299F08006664E4 /* ToolBarButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolBarButtonStyle.swift; sourceTree = "<group>"; };
+		50D433322B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OvalGhostLargePrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433332B299F08006664E4 /* SheetMenuButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetMenuButtonStyle.swift; sourceTree = "<group>"; };
+		50D433342B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostMediumSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433352B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NakedIconMediumSecondaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433362B299F08006664E4 /* BottomActionButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomActionButtonStyle.swift; sourceTree = "<group>"; };
+		50D433372B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OvalOpacityMediumPrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D433382B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolidLargeSpecialButtonStyle.swift; sourceTree = "<group>"; };
+		50D433392B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OvalSmallPrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D4333A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OvalMediumPrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D4333B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NakedLargeCenterButtonStyle.swift; sourceTree = "<group>"; };
+		50D4333C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolidLargePrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		50D4333D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedMediumSecondaryButtonStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +163,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50D433102B2995AB006664E4 /* libiconv.2.tbd in Frameworks */,
+				50D433052B298B48006664E4 /* opencv2 in Frameworks */,
+				50D433012B298B48006664E4 /* boost in Frameworks */,
+				50D433032B298B48006664E4 /* ffmpeg in Frameworks */,
+				50D433072B298B48006664E4 /* openssl in Frameworks */,
+				50D432FF2B298B48006664E4 /* MainProfile in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +180,7 @@
 			children = (
 				5090A409293DDED400AE5AFF /* test */,
 				5090A408293DDED400AE5AFF /* Products */,
+				50D4330E2B2995AB006664E4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,11 +195,18 @@
 		5090A409293DDED400AE5AFF /* test */ = {
 			isa = PBXGroup;
 			children = (
+				50D4332D2B299F08006664E4 /* ButtonStyle */,
+				50D433202B2996A4006664E4 /* Charmander */,
+				50D433092B298D19006664E4 /* extension.swift */,
+				50D432A62B2989BA006664E4 /* StreamingView */,
+				50D433112B299659006664E4 /* Viewcell */,
 				5090A40A293DDED400AE5AFF /* testApp.swift */,
 				5090A40C293DDED400AE5AFF /* ContentView.swift */,
 				5090A40E293DDED500AE5AFF /* Assets.xcassets */,
 				5090A410293DDED500AE5AFF /* test.entitlements */,
 				5090A411293DDED500AE5AFF /* Preview Content */,
+				50D433082B298C2F006664E4 /* test-Bridging-Header.h */,
+				50D4330B2B298F01006664E4 /* test-Prefix.pch */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -67,6 +217,146 @@
 				5090A412293DDED500AE5AFF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		50D432A62B2989BA006664E4 /* StreamingView */ = {
+			isa = PBXGroup;
+			children = (
+				50D432DD2B2989BA006664E4 /* DataBrokerWrapper.h */,
+				50D432C52B2989BA006664E4 /* DataBrokerWrapperDelegate.h */,
+				50D432BA2B2989BA006664E4 /* FrameManagerWrapper.h */,
+				50D432A72B2989BA006664E4 /* FrameManagerWrapperDelegate.h */,
+				50D432C32B2989BA006664E4 /* StreamingStatus.h */,
+				50D432A92B2989BA006664E4 /* DataBrokerWrapper.mm */,
+				50D432C42B2989BA006664E4 /* FrameManagerWrapper.mm */,
+				50D432D72B2989BA006664E4 /* StreamingStatus+Extension.swift */,
+				50D432A82B2989BA006664E4 /* StreamingView.swift */,
+				50D432D82B2989BA006664E4 /* draw */,
+				50D432BB2B2989BA006664E4 /* Fisheye */,
+				50D432AA2B2989BA006664E4 /* FrameManager */,
+				50D432C62B2989BA006664E4 /* MetalView */,
+			);
+			path = StreamingView;
+			sourceTree = "<group>";
+		};
+		50D432AA2B2989BA006664E4 /* FrameManager */ = {
+			isa = PBXGroup;
+			children = (
+				50D432AE2B2989BA006664E4 /* AudioDecoder.h */,
+				50D432B12B2989BA006664E4 /* FrameManager.h */,
+				50D432B42B2989BA006664E4 /* FrameManager.mm */,
+				50D432B82B2989BA006664E4 /* FrameParser.h */,
+				50D432AD2B2989BA006664E4 /* FrameParser.mm */,
+				50D432B92B2989BA006664E4 /* G726.c */,
+				50D432B32B2989BA006664E4 /* G726Decoder.h */,
+				50D432AC2B2989BA006664E4 /* HWDecoder.h */,
+				50D432B52B2989BA006664E4 /* HWDecoder.mm */,
+				50D432AB2B2989BA006664E4 /* NSData+Hex.h */,
+				50D432B72B2989BA006664E4 /* NSData+Hex.m */,
+				50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */,
+				50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */,
+				50D432B62B2989BA006664E4 /* VideoDecoder.h */,
+			);
+			path = FrameManager;
+			sourceTree = "<group>";
+		};
+		50D432BB2B2989BA006664E4 /* Fisheye */ = {
+			isa = PBXGroup;
+			children = (
+				50D432BC2B2989BA006664E4 /* FisheyeLibWrapper.swift */,
+				50D432BD2B2989BA006664E4 /* FisheyeMeshImpl.swift */,
+				50D432BE2B2989BA006664E4 /* FisheyePositionController.swift */,
+				50D432BF2B2989BA006664E4 /* FisheyeMesh.swift */,
+				50D432C02B2989BA006664E4 /* fisheye_version.swift */,
+				50D432C12B2989BA006664E4 /* FisheyeProtocol.swift */,
+				50D432C22B2989BA006664E4 /* FisheyePTZController.swift */,
+			);
+			path = Fisheye;
+			sourceTree = "<group>";
+		};
+		50D432C62B2989BA006664E4 /* MetalView */ = {
+			isa = PBXGroup;
+			children = (
+				50D432C72B2989BA006664E4 /* BeautyFistWrapper.swift */,
+				50D432C82B2989BA006664E4 /* MetalTextureCache.swift */,
+				50D432C92B2989BA006664E4 /* MetalRenderer.swift */,
+				50D432CA2B2989BA006664E4 /* MetadataDrawable.h */,
+				50D432CB2B2989BA006664E4 /* EAGLView.h */,
+				50D432CC2B2989BA006664E4 /* UIBezierPath+Arrow.swift */,
+				50D432CD2B2989BA006664E4 /* GLViewportCtrWrapper.h */,
+				50D432CE2B2989BA006664E4 /* MetalView.swift */,
+				50D432CF2B2989BA006664E4 /* VCARulesDrawable.h */,
+				50D432D02B2989BA006664E4 /* GLViewportCtr.h */,
+				50D432D12B2989BA006664E4 /* Shaders.metal */,
+				50D432D22B2989BA006664E4 /* GLViewportCtrWrapper.mm */,
+				50D432D32B2989BA006664E4 /* EAGLViewProtocol.h */,
+				50D432D42B2989BA006664E4 /* MetalBuffer.swift */,
+				50D432D52B2989BA006664E4 /* LCTextLayer.swift */,
+				50D432D62B2989BA006664E4 /* MTLTexture+Extension.swift */,
+			);
+			path = MetalView;
+			sourceTree = "<group>";
+		};
+		50D432D82B2989BA006664E4 /* draw */ = {
+			isa = PBXGroup;
+			children = (
+				50D432D92B2989BA006664E4 /* Metadata.swift */,
+				50D432DA2B2989BA006664E4 /* ProjectModel.swift */,
+				50D432DB2B2989BA006664E4 /* Vector2D.swift */,
+				50D432DC2B2989BA006664E4 /* Point3D.swift */,
+			);
+			path = draw;
+			sourceTree = "<group>";
+		};
+		50D4330E2B2995AB006664E4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				50D4330F2B2995AB006664E4 /* libiconv.2.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		50D433112B299659006664E4 /* Viewcell */ = {
+			isa = PBXGroup;
+			children = (
+				50D433132B299659006664E4 /* ViewCellStatus.swift */,
+				50D433142B299659006664E4 /* StreamingViewAction.swift */,
+				50D433152B299659006664E4 /* StreamingViewWrapper.swift */,
+			);
+			path = Viewcell;
+			sourceTree = "<group>";
+		};
+		50D433202B2996A4006664E4 /* Charmander */ = {
+			isa = PBXGroup;
+			children = (
+				50D4332B2B299C60006664E4 /* NavigationBarColor.swift */,
+				50D433222B2996A4006664E4 /* CharmanderError.swift */,
+				50D433252B2996A4006664E4 /* CharmanderLogType.swift */,
+			);
+			path = Charmander;
+			sourceTree = "<group>";
+		};
+		50D4332D2B299F08006664E4 /* ButtonStyle */ = {
+			isa = PBXGroup;
+			children = (
+				50D4332E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift */,
+				50D4332F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift */,
+				50D433302B299F08006664E4 /* OvalGhostIconSmallSecondaryButtonStyle.swift */,
+				50D433312B299F08006664E4 /* ToolBarButtonStyle.swift */,
+				50D433322B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift */,
+				50D433332B299F08006664E4 /* SheetMenuButtonStyle.swift */,
+				50D433342B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift */,
+				50D433352B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift */,
+				50D433362B299F08006664E4 /* BottomActionButtonStyle.swift */,
+				50D433372B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift */,
+				50D433382B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift */,
+				50D433392B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift */,
+				50D4333A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift */,
+				50D4333B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift */,
+				50D4333C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift */,
+				50D4333D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift */,
+			);
+			path = ButtonStyle;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +375,13 @@
 			dependencies = (
 			);
 			name = test;
+			packageProductDependencies = (
+				50D432FE2B298B48006664E4 /* MainProfile */,
+				50D433002B298B48006664E4 /* boost */,
+				50D433022B298B48006664E4 /* ffmpeg */,
+				50D433042B298B48006664E4 /* opencv2 */,
+				50D433062B298B48006664E4 /* openssl */,
+			);
 			productName = test;
 			productReference = 5090A407293DDED400AE5AFF /* test.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +410,9 @@
 				Base,
 			);
 			mainGroup = 5090A3FE293DDED400AE5AFF;
+			packageReferences = (
+				50D432FD2B298B48006664E4 /* XCLocalSwiftPackageReference "VIVOTEKiOSSDK" */,
+			);
 			productRefGroup = 5090A408293DDED400AE5AFF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -139,8 +439,62 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50D433492B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift in Sources */,
+				50D432F32B2989BA006664E4 /* Shaders.metal in Sources */,
+				50D433272B2996A4006664E4 /* CharmanderError.swift in Sources */,
+				50D432E72B2989BA006664E4 /* FisheyeMeshImpl.swift in Sources */,
+				50D433192B299659006664E4 /* ViewCellStatus.swift in Sources */,
+				50D432EA2B2989BA006664E4 /* fisheye_version.swift in Sources */,
+				50D432F02B2989BA006664E4 /* MetalRenderer.swift in Sources */,
+				50D433452B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift in Sources */,
+				50D433432B299F08006664E4 /* SheetMenuButtonStyle.swift in Sources */,
+				50D432EC2B2989BA006664E4 /* FisheyePTZController.swift in Sources */,
+				50D4332A2B2996A4006664E4 /* CharmanderLogType.swift in Sources */,
+				50D4331A2B299659006664E4 /* StreamingViewAction.swift in Sources */,
+				50D432E42B2989BA006664E4 /* NSData+Hex.m in Sources */,
+				50D432E92B2989BA006664E4 /* FisheyeMesh.swift in Sources */,
+				50D432F62B2989BA006664E4 /* LCTextLayer.swift in Sources */,
+				50D433422B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift in Sources */,
+				50D432E22B2989BA006664E4 /* FrameManager.mm in Sources */,
+				50D432EF2B2989BA006664E4 /* MetalTextureCache.swift in Sources */,
+				50D4334C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift in Sources */,
+				50D432E32B2989BA006664E4 /* HWDecoder.mm in Sources */,
+				50D433482B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift in Sources */,
+				50D4332C2B299C60006664E4 /* NavigationBarColor.swift in Sources */,
+				50D432E12B2989BA006664E4 /* RemoteIOPlayer.mm in Sources */,
+				50D4331B2B299659006664E4 /* StreamingViewWrapper.swift in Sources */,
+				50D432DF2B2989BA006664E4 /* DataBrokerWrapper.mm in Sources */,
+				50D4334B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift in Sources */,
+				50D433412B299F08006664E4 /* ToolBarButtonStyle.swift in Sources */,
+				50D433462B299F08006664E4 /* BottomActionButtonStyle.swift in Sources */,
+				50D432E62B2989BA006664E4 /* FisheyeLibWrapper.swift in Sources */,
+				50D432FA2B2989BA006664E4 /* ProjectModel.swift in Sources */,
+				50D432E52B2989BA006664E4 /* G726.c in Sources */,
+				50D432EE2B2989BA006664E4 /* BeautyFistWrapper.swift in Sources */,
+				50D4333E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift in Sources */,
+				50D433472B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift in Sources */,
 				5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */,
+				50D432FB2B2989BA006664E4 /* Vector2D.swift in Sources */,
+				50D432DE2B2989BA006664E4 /* StreamingView.swift in Sources */,
+				50D432F22B2989BA006664E4 /* MetalView.swift in Sources */,
+				50D433442B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift in Sources */,
+				50D432FC2B2989BA006664E4 /* Point3D.swift in Sources */,
+				50D432E82B2989BA006664E4 /* FisheyePositionController.swift in Sources */,
+				50D4334D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift in Sources */,
+				50D4333F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift in Sources */,
+				50D4334A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift in Sources */,
+				50D432E02B2989BA006664E4 /* FrameParser.mm in Sources */,
 				5090A40B293DDED400AE5AFF /* testApp.swift in Sources */,
+				50D4330A2B298D19006664E4 /* extension.swift in Sources */,
+				50D432F92B2989BA006664E4 /* Metadata.swift in Sources */,
+				50D433402B299F08006664E4 /* OvalGhostIconSmallSecondaryButtonStyle.swift in Sources */,
+				50D432EB2B2989BA006664E4 /* FisheyeProtocol.swift in Sources */,
+				50D432F72B2989BA006664E4 /* MTLTexture+Extension.swift in Sources */,
+				50D432ED2B2989BA006664E4 /* FrameManagerWrapper.mm in Sources */,
+				50D432F82B2989BA006664E4 /* StreamingStatus+Extension.swift in Sources */,
+				50D432F12B2989BA006664E4 /* UIBezierPath+Arrow.swift in Sources */,
+				50D432F42B2989BA006664E4 /* GLViewportCtrWrapper.mm in Sources */,
+				50D432F52B2989BA006664E4 /* MetalBuffer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,7 +507,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -187,6 +541,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "test/test-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -200,8 +555,11 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "test/test-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -211,7 +569,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -243,6 +601,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "test/test-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -251,8 +610,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "test/test-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -354,6 +716,36 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		50D432FD2B298B48006664E4 /* XCLocalSwiftPackageReference "VIVOTEKiOSSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = VIVOTEKiOSSDK;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		50D432FE2B298B48006664E4 /* MainProfile */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MainProfile;
+		};
+		50D433002B298B48006664E4 /* boost */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = boost;
+		};
+		50D433022B298B48006664E4 /* ffmpeg */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ffmpeg;
+		};
+		50D433042B298B48006664E4 /* opencv2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = opencv2;
+		};
+		50D433062B298B48006664E4 /* openssl */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = openssl;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5090A3FF293DDED400AE5AFF /* Project object */;
 }
