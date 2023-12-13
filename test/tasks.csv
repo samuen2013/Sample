@@ -1,0 +1,1846 @@
+flag,group,name,api,type,document,variables,expected,arraySortedKey,option
+0,User,deleteAccount,,,,,,,
+,Organization,signIn,signIn,signIn,,"{  ""username"":""serverUAT2@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Organization,建立組織,createOrganization,vortex,"mutation Mutation($name: String!) {
+  createOrganization(input: {name: $name}) {
+    id
+    owner
+    name }}","{
+  ""name"":""TestCreateOrg""
+}","{""createOrganization"":{""id"":""=$org"",""owner"":""$sub"",""name"":""TestCreateOrg""}}",,
+,Organization,等待建立完成,,delay,,"{""ms"":""1000""}",{},,
+,Organization,組織列表,listMyOrganization,vortex,"query Query {
+  listMyOrganization {
+    items {
+      inviterEmail
+      onBoard
+      organizationID
+      organizationName }}}","{
+}","{""listMyOrganization"":{""items"":[{""inviterEmail"":""serveruat2@vivotek.com"",""onBoard"":false,""organizationID"":""$org"",""organizationName"":""TestCreateOrg""}]}}",,
+,Organization,組織改名,updateOrganizationName,vortex,"mutation MyMutation($organizationID: ID!, $name: String!) {
+  updateOrganizationName(organizationID: $organizationID, name: $name) {
+    res }}","{
+  ""organizationID"":""$org"",
+  ""name"":""TestRename""
+}","{""updateOrganizationName"":{""res"":true}}",,
+,Organization,刪除組織,deleteOrganization,vortex,"mutation MyMutation($id: ID!) {
+  deleteOrganization(input: {id: $id}) {
+    owner
+    name
+    id }}","{
+  ""id"":""$org""
+}","{""deleteOrganization"":{""owner"":""$sub"",""name"":""TestRename"",""id"":""$org""}}",,
+,Organization X User,signIn,signIn,signIn,,"{  ""username"":""serverUAT3@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Organization X User,邀請使用者A,setUserOfOrganization,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $email: String!
+  $join: Boolean!
+  $asAdmin: Boolean
+) {
+  setUserOfOrganization(
+    input: {
+      organizationID: $organizationID
+      email: $email
+      join: $join
+      asAdmin: $asAdmin
+    }
+  ) {
+    res
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT_FORINVITE2@vivotek.com"",
+  ""join"":true
+}","{
+    ""setUserOfOrganization"": {
+      ""res"": true
+    }
+}",,
+,Organization X User,再邀一次,inviteAgain,vortex,"mutation MyMutation($organizationID: ID!, $email: String!) {
+  inviteAgain(input: { organizationID: $organizationID, email: $email }) {
+    res
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT_FORINVITE2@vivotek.com""
+}","{
+    ""inviteAgain"": {
+      ""res"": true
+    }
+}",,
+,Organization X User,使用者列表,listUserOfOrganization,vortex,"query MyQuery($id: ID!, $nextToken: String) {
+  listUserOfOrganization(input: { id: $id, nextToken: $nextToken }) {
+    items {
+      organization
+      email
+      owner
+      state
+      onBoard
+      role
+      nickname
+    }
+    nextToken
+  }
+}","{
+  ""id"":""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""listUserOfOrganization"": {
+    ""items"": [
+      {
+        ""organization"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""email"": ""serveruat3@vivotek.com"",
+        ""owner"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+        ""state"": ""ACTIVE"",
+        ""onBoard"": true,
+        ""role"": ""OWNER"",
+        ""nickname"": ""serveruat3@vivotek.com""
+      },
+      {
+        ""organization"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""email"": ""serveruat_forinvite2@vivotek.com"",
+        ""owner"": ""521edbc1-34d9-4af2-8f6d-08432e304aba"",
+        ""state"": ""ACTIVE"",
+        ""onBoard"": false,
+        ""role"": ""USER"",
+        ""nickname"": ""serveruat3@vivotek.com""
+      },
+      {
+        ""organization"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""email"": ""test.group.role@vivotek.com"",
+        ""owner"": ""58af6202-b420-4f06-a03e-3781f243ab6a"",
+        ""state"": ""ACTIVE"",
+        ""onBoard"": false,
+        ""role"": ""USER"",
+        ""nickname"": ""serveruat3@vivotek.com""
+      }
+    ]
+  }
+}",,
+,Organization X User,將使用者A設為 Admin,setOrganizationRoleOfUser,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $email: String!
+  $role: UserOrganizationRole!
+) {
+  setOrganizationRoleOfUser(
+    organizationID: $organizationID
+    email: $email
+    role: $role
+  ) {
+    relatedSubs
+    reason
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT_FORINVITE2@vivotek.com"",
+  ""role"":""ADMIN""
+}","{
+  ""setOrganizationRoleOfUser"": {
+    ""relatedSubs"": [
+      ""521edbc1-34d9-4af2-8f6d-08432e304aba""
+    ]
+  }
+}",,
+,Organization X User,轉移 Owner 給使用者A,transferOwner,vortex,"mutation MyMutation($organizationID: ID!, $email: String!) {
+  transferOwner(organizationID: $organizationID, email: $email) {
+    relatedSubs
+    reason
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT_FORINVITE2@vivotek.com""
+}","{
+  ""transferOwner"": {
+    ""relatedSubs"": [
+      ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+      ""521edbc1-34d9-4af2-8f6d-08432e304aba""
+    ]
+  }
+}",,
+,Organization X User,登入使用者A,signIn,signIn,,"{  ""username"":""SERVERUAT_FORINVITE2@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Organization X User,使用者A on board,startWorkingInOrganization,vortex,"mutation MyMutation($organizationID: ID!) {
+  startWorkingInOrganization(organizationID: $organizationID) {
+    res
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""startWorkingInOrganization"": {
+    ""res"": true
+  }
+}",,
+,Organization X User,將 Owner 還回去,transferOwner,vortex,"mutation MyMutation($organizationID: ID!, $email: String!) {
+  transferOwner(organizationID: $organizationID, email: $email) {
+    relatedSubs
+    reason
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT3@VIVOTEK.COM""
+}","{
+  ""transferOwner"": {
+    ""relatedSubs"": [
+      ""521edbc1-34d9-4af2-8f6d-08432e304aba"",
+      ""bab58331-bbff-4fcd-8a1e-b5462240bf07""
+    ]
+  }
+}",,
+,Organization X User,改登原本的帳號,signIn,signIn,,"{""username"":""SERVERUAT3@VIVOTEK.COM"",""password"":""Vsaas123""}",{},,
+,Organization X User,將使用者A從組織移除,setUserOfOrganization,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $email: String!
+  $join: Boolean!
+  $asAdmin: Boolean
+) {
+  setUserOfOrganization(
+    input: {
+      organizationID: $organizationID
+      email: $email
+      join: $join
+      asAdmin: $asAdmin
+    }
+  ) {
+    res
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"":""SERVERUAT_FORINVITE2@VIVOTEK.COM"",
+  ""join"":false
+}","{
+  ""setUserOfOrganization"": {
+    ""res"": true
+  }
+}",,
+,Group,signIn,signIn,signIn,,"{ ""username"":""serverUAT3@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Group,建立 DeviceGroup,createDeviceGroup,vortex,"mutation MyMutation($name: String!, $organizationID: ID!) {
+  createDeviceGroup(input: {name: $name, organizationID: $organizationID}) {
+    id
+    name
+    organizationID
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""name"":""TestCreateGroup""
+}","{
+  ""createDeviceGroup"": {
+    ""id"": ""=$deviceGroup"",
+    ""name"":""TestCreateGroup"",
+    ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+  }
+}",,
+,Group,DeviceGroup 列表,listDeviceGroups,vortex,"query MyQuery($organizationID: ID!, $nextToken: String) {
+  listDeviceGroups(organizationID: $organizationID, nextToken: $nextToken) {
+    items {
+      id
+      name
+      organizationID
+    }
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""listDeviceGroups"": {
+    ""items"": [
+      {
+        ""id"": ""1e438547-1b84-417f-a531-ec278211a83b"",
+        ""name"": ""UAT Group"",
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+      },
+      {
+        ""id"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""name"": ""Ungrouped Cameras"",
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+      },
+      {
+        ""id"": ""$deviceGroup"",
+        ""name"": ""TestCreateGroup"",
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+      }
+    ]
+  }
+}",name,
+,Group,DeviceGroup 改名,updateDeviceGroup,vortex,"mutation MyMutation($id: ID!, $name: String!) {
+  updateDeviceGroup(input: {id: $id, name: $name}) {
+    id
+    name
+    organizationID
+  }
+}","{
+  ""id"":""$deviceGroup"",
+  ""name"":""TestRenameGroup""
+}","{
+    ""updateDeviceGroup"": {
+      ""id"": ""$deviceGroup"",
+      ""name"": ""TestRenameGroup"",
+      ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+    }
+}",,
+,Group,刪除 DeviceGroup,deleteDeviceGroup,vortex,"mutation MyMutation($id: ID!) {
+  deleteDeviceGroup(input: {id: $id}) {
+    id
+    name
+    organizationID
+  }
+}","{
+  ""id"":""$deviceGroup""
+}","{
+  ""deleteDeviceGroup"": {
+    ""id"": ""$deviceGroup"",
+    ""name"": ""TestRenameGroup"",
+    ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+   }
+}",,
+,User X Group,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",""password"":""Vsaas123""}",{},,
+,User X Group,設定 Group 權限,setGroupsRoleOfUser,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $email: String!
+  $groups: [GroupRolePairInput]!
+) {
+  setGroupsRoleOfUser(
+    organizationID: $organizationID
+    email: $email
+    groups: $groups
+  ) {
+    reason
+    relatedSubs
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"": ""test.group.role@vivotek.com"",
+  ""groups"": [
+    {
+      ""groupID"": ""1e438547-1b84-417f-a531-ec278211a83b"",
+      ""role"": ""SUPERVISOR""
+    }
+  ]
+}","{
+  ""setGroupsRoleOfUser"": {
+    ""relatedSubs"": [
+      ""58af6202-b420-4f06-a03e-3781f243ab6a""
+    ]
+  }
+}",,
+,User X Group,取得 Group 角色,getUserGroupRole,vortex,"query MyQuery($organizationID: ID!, $email: String!) {
+  getUserGroupRole(organizationID: $organizationID, email: $email) {
+    email
+    groups {
+      groupID
+      role
+    }
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"": ""test.group.role@vivotek.com""
+}","{
+  ""getUserGroupRole"": {
+    ""email"": ""test.group.role@vivotek.com"",
+    ""groups"": [
+      {
+        ""groupID"": ""1e438547-1b84-417f-a531-ec278211a83b"",
+        ""role"": ""SUPERVISOR""
+      },
+      {
+        ""groupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""role"": ""NONE""
+      }
+    ]
+  }
+}",,
+,User X Group,移除 Group 權限,setGroupsRoleOfUser,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $email: String!
+  $groups: [GroupRolePairInput]!
+) {
+  setGroupsRoleOfUser(
+    organizationID: $organizationID
+    email: $email
+    groups: $groups
+  ) {
+    reason
+    relatedSubs
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""email"": ""test.group.role@vivotek.com"",
+  ""groups"": []
+}","{
+  ""setGroupsRoleOfUser"": {
+    ""relatedSubs"": [
+      ""58af6202-b420-4f06-a03e-3781f243ab6a""
+    ]
+  }
+}",,
+,Device,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Device,加入裝置,createDevice,vortex,"mutation MyMutation(
+  $mac: String!
+  $organizationID: ID!
+  $deviceGroupID: ID!
+  $name: String
+  $city: DeviceCity
+) {
+  createDevice(
+    input: {
+      mac: $mac
+      organizationID: $organizationID
+      deviceGroupID: $deviceGroupID
+      name: $name
+      city: $city
+    }
+  ) {
+    city
+    derivant
+    derivantMac
+    deviceGroupID
+    firmware
+    fisheye
+    fwUpgradeState
+    fwUpgradeVersion
+    ip
+    mac
+    model
+    modelType
+    name
+    online
+    organizationID
+    ptz
+    recording
+    thingName
+    timezone
+    type
+    vca {
+      capability
+      version
+    }
+  }
+}
+","{
+  ""mac"":""DDDDDDDDDDDD"",
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""deviceGroupID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""name"":""TestCreateDevice"",
+  ""city"":""AsiaTaipei""
+}","{
+  ""createDevice"": {
+    ""city"": ""AsiaTaipei"",
+    ""derivant"": ""none"",
+    ""derivantMac"": null,
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""firmware"": null,
+    ""fisheye"": false,
+    ""fwUpgradeState"": null,
+    ""fwUpgradeVersion"": null,
+    ""ip"": null,
+    ""mac"": ""DDDDDDDDDDDD"",
+    ""model"": null,
+    ""modelType"": ""Unknown"",
+    ""name"": ""TestCreateDevice"",
+    ""online"": false,
+    ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""ptz"": false,
+    ""recording"": false,
+    ""thingName"": ""=$thingName"",
+    ""timezone"": null,
+    ""type"": ""unknownDevice"",
+    ""vca"": {
+      ""capability"": null,
+      ""version"": null
+    }
+  }
+}",,
+,Device,裝置資訊,getDeviceInfo,vortex,"query MyQuery($mac: String!, $derivant: String) {
+  getDeviceInfo(input: {mac: $mac, derivant: $derivant}) {
+    items {
+      city
+      derivant
+      derivantMac
+      deviceGroupID
+      firmware
+      fisheye
+      fwUpgradeState
+      fwUpgradeVersion
+      ip
+      mac
+      model
+      modelType
+      name
+      online
+      organizationID
+      ptz
+      recording
+      thingName
+      timezone
+      type
+      vca {
+        capability
+        version
+      }
+    }
+  }
+}","{
+  ""mac"":""FFFFFFFFFFFF"",
+  ""derivant"":""none""
+}","{
+  ""getDeviceInfo"": {
+    ""items"": [
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": null,
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": null,
+        ""mac"": ""FFFFFFFFFFFF"",
+        ""model"": null,
+        ""modelType"": ""Unknown"",
+        ""name"": ""Device 2"",
+        ""online"": false,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""FFFFFFFFFFFF-1685007084045"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""unknownDevice"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      }
+    ]
+  }
+}",,
+,Device,等待 shadow 回寫 DDB,,delay,,"{""ms"":""2000""}",{},,
+,Device,裝置列表,listDeviceInfoOfOrganization,vortex,"query MyQuery($organizationID: ID!) {
+  listDeviceInfoOfOrganization(input: {organizationID: $organizationID}) {
+    items {
+      city
+      derivant
+      derivantMac
+      deviceGroupID
+      firmware
+      fisheye
+      fwUpgradeState
+      fwUpgradeVersion
+      ip
+      mac
+      model
+      modelType
+      name
+      online
+      organizationID
+      ptz
+      recording
+      thingName
+      timezone
+      type
+      vca {
+        capability
+        version
+      }
+      licenseType
+      backupLicenseType
+      backupLicenseExpire
+      storageCapacity
+    }
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""listDeviceInfoOfOrganization"": {
+    ""items"": [
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""=$firmware"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""=$ip"",
+        ""mac"": ""0002D1A3D5FE"",
+        ""model"": ""IB837-HT"",
+        ""modelType"": ""Premium"",
+        ""name"": ""UAT"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": true,
+        ""thingName"": ""0002D1A3D5FE-1686303081748"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""camera"",
+        ""vca"": {
+          ""capability"": [
+            ""ObjectAttribute"",
+            ""HumanSearch"",
+            ""FaceSearch"",
+            ""PeopleEvent"",
+            ""MissingObjectEvent"",
+            ""UnattendedObjectEvent"",
+            ""VehicleEvent"",
+            ""TamperingEvent""
+          ],
+          ""version"": ""=$version""
+        },
+        ""licenseType"": ""pro"",
+        ""backupLicenseType"": null,
+        ""backupLicenseExpire"": null,
+        ""storageCapacity"": 30
+      },
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": null,
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": null,
+        ""mac"": ""DDDDDDDDDDDD"",
+        ""model"": null,
+        ""modelType"": ""Unknown"",
+        ""name"": ""TestCreateDevice"",
+        ""online"": false,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""$thingName"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""unknownDevice"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        },
+        ""licenseType"": ""unsubscribed"",
+        ""backupLicenseType"": null,
+        ""backupLicenseExpire"": null,
+        ""storageCapacity"": null
+      },
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": null,
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": null,
+        ""mac"": ""EEEEEEEEEEEE"",
+        ""model"": null,
+        ""modelType"": ""Unknown"",
+        ""name"": ""Device 1"",
+        ""online"": false,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""EEEEEEEEEEEE-1684987651806"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""unknownDevice"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        },
+        ""licenseType"": ""pro"",
+        ""backupLicenseType"": null,
+        ""backupLicenseExpire"": null,
+        ""storageCapacity"": 30
+      },
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": null,
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": null,
+        ""mac"": ""FFFFFFFFFFFF"",
+        ""model"": null,
+        ""modelType"": ""Unknown"",
+        ""name"": ""Device 2"",
+        ""online"": false,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""FFFFFFFFFFFF-1685007084045"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""unknownDevice"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        },
+        ""licenseType"": ""pro"",
+        ""backupLicenseType"": null,
+        ""backupLicenseExpire"": null,
+        ""storageCapacity"": 30
+      }
+    ]
+  }
+}",mac,
+,Device,移動裝置到別的 Group,batchMoveDeviceToGroup,vortex,"mutation MyMutation($mac: String!, $derivant: String!, $deviceGroupID: String!) {
+  batchMoveDeviceToGroup(input: {items: {mac: $mac, derivant: $derivant}, deviceGroupID: $deviceGroupID}) {
+    failedItems {
+      mac
+      derivant
+    }
+    res
+  }
+}","{
+  ""mac"":""DDDDDDDDDDDD"",
+  ""derivant"":""none"",
+  ""deviceGroupID"":""1e438547-1b84-417f-a531-ec278211a83b""
+}","{
+  ""batchMoveDeviceToGroup"": {
+    ""failedItems"": null,
+    ""res"": true
+  }
+}",,
+,Device,裝置改名,renameDevice,IoT/POST,/things/$thingName/vsaas/system/general,"{""name"":""RenameTest2""}","{""info"":null,""statusCode"":0,""statusString"":""OK""}",,
+,Device,刪除裝置,batchDeleteDevice,vortex,"mutation MyMutation($mac: String!, $derivant: String!) {
+  batchDeleteDevice(input: {items: {mac: $mac, derivant: $derivant}}) {
+    failedItems {
+      mac
+      derivant
+    }
+    res
+  }
+}","{
+  ""mac"":""DDDDDDDDDDDD"",
+  ""derivant"":""none""
+}","{
+  ""batchDeleteDevice"": {
+    ""failedItems"": null,
+    ""res"": true
+  }
+}",,
+,Device,產生裝置令牌,grantDeviceToken,vortex,"query MyQuery($thingName: String!, $derivant: String!) {
+  grantDeviceToken(
+    input: { deviceList: [{ thingName: $thingName, derivant: $derivant }] }
+  ) {
+    credential {
+      accessKeyId
+      secretAccessKey
+      sessionToken
+    }
+  }
+}","{
+  ""thingName"": ""FFFFFFFFFFFF-1685007084045"",
+  ""derivant"": ""none""
+}","{
+  ""grantDeviceToken"": {
+    ""credential"": {
+      ""accessKeyId"": ""=$accessKeyId"",
+      ""secretAccessKey"": ""=$secretAccessKey"",
+      ""sessionToken"": ""=$sessionToken""
+    }
+  }
+}",,
+,Device,grantDeviceControlToken,grantDeviceControlToken,vortex,"query MyQuery($thingName: String!, $derivant: String!) {
+  grantDeviceControlToken(
+    input: { device: { thingName: $thingName, derivant: $derivant } }
+  ) {
+    mqttCred {
+      accessKeyId
+      secretAccessKey
+      sessionToken
+    }
+    clientId
+  }
+}","{
+  ""thingName"": ""FFFFFFFFFFFF-1685007084045"",
+  ""derivant"": ""none""
+}","{
+  ""grantDeviceControlToken"": {
+    ""mqttCred"": {
+      ""accessKeyId"": ""=$accessKeyId"",
+      ""secretAccessKey"": ""=$secretAccessKey"",
+      ""sessionToken"": ""=$sessionToken""
+    },
+    ""clientId"": ""=$clientId""
+  }
+}",,
+0,NVR,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",""password"":""Vsaas123""}",,,
+0,NVR,subscribeDeviceState,subscribeDeviceState,subscribe,"subscription MySubscription {
+  subscribeDeviceState {
+    mac
+    derivant
+    online
+    recording
+    fwUpdateState
+    deviceGroupID
+    sub
+  }
+}",{},{},,"{
+  ""key"": ""NVR/subscribeDeviceState"",
+  ""filter"": {
+    ""mac"": ""$nvr"",
+    ""derivant"": ""none""
+  }
+}"
+0,NVR,加入裝置,createDevice,mutate,"mutation MyMutation(
+  $mac: String!
+  $organizationID: ID!
+  $deviceGroupID: ID!
+  $name: String
+  $city: DeviceCity
+) {
+  createDevice(
+    input: {
+      mac: $mac
+      organizationID: $organizationID
+      deviceGroupID: $deviceGroupID
+      name: $name
+      city: $city
+    }
+  ) {
+    city
+    derivant
+    derivantMac
+    deviceGroupID
+    firmware
+    fisheye
+    fwUpgradeState
+    fwUpgradeVersion
+    ip
+    mac
+    model
+    modelType
+    name
+    online
+    organizationID
+    ptz
+    recording
+    thingName
+    timezone
+    type
+    vca {
+      capability
+      version
+    }
+  }
+}
+","{
+  ""mac"":""0002D1A96009"",
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""deviceGroupID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""name"":""TestNVR"",
+  ""city"":""AsiaTaipei""
+}","{
+  ""createDevice"": {
+    ""city"": ""AsiaTaipei"",
+    ""derivant"": ""none"",
+    ""derivantMac"": null,
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""firmware"": null,
+    ""fisheye"": false,
+    ""fwUpgradeState"": null,
+    ""fwUpgradeVersion"": null,
+    ""ip"": null,
+    ""mac"": ""0002D1A96009"",
+    ""model"": null,
+    ""modelType"": ""Unknown"",
+    ""name"": ""TestNVR"",
+    ""online"": false,
+    ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""ptz"": false,
+    ""recording"": false,
+    ""thingName"": ""=$thingName"",
+    ""timezone"": null,
+    ""type"": ""unknownDevice"",
+    ""vca"": {
+      ""capability"": null,
+      ""version"": null
+    }
+  }
+}",,
+0,NVR,等待本體上線,,onSubscribe,,{},"{
+  ""subscribeDeviceState"": {
+    ""mac"": ""0002D1A96009"",
+    ""derivant"": ""none"",
+    ""online"": true,
+    ""recording"": false,
+    ""fwUpdateState"": null,
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07""
+  }
+}",,"{""key"":""NVR/subscribeDeviceState"",""timeout"":600000}"
+0,NVR,取得本體 + Channels 資訊,getDeviceInfo,query,"query MyQuery($mac: String!, $derivant: String) {
+  getDeviceInfo(input: {mac: $mac, derivant: $derivant}) {
+    items {
+      city
+      derivant
+      derivantMac
+      deviceGroupID
+      firmware
+      fisheye
+      fwUpgradeState
+      fwUpgradeVersion
+      ip
+      mac
+      model
+      modelType
+      name
+      online
+      organizationID
+      ptz
+      recording
+      thingName
+      timezone
+      type
+      vca {
+        capability
+        version
+      }
+    }
+  }
+}","{
+  ""mac"":""0002D1A96009"",
+  ""derivant"":""""
+}","{
+  ""getDeviceInfo"": {
+    ""items"": [
+      {
+        ""city"": null,
+        ""derivant"": ""ch0"",
+        ""derivantMac"": ""0002D1A5F06E"",
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""1.2101.37.01i"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""169.254.10.122"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""FD9387-FR-v2"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""NVR channel 1"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": true,
+        ""thingName"": ""$thingName"",
+        ""timezone"": null,
+        ""type"": ""nvrchannel"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      },
+      {
+        ""city"": null,
+        ""derivant"": ""ch1"",
+        ""derivantMac"": ""0002D19C1498"",
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""1.2102.33.01j"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""169.254.7.193"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""IB9389-EHT-v2"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""NVR channel 2"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": true,
+        ""thingName"": ""$thingName"",
+        ""timezone"": null,
+        ""type"": ""nvrchannel"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      },
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""5.9.424"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""172.18.1.215"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""ND9442P"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""TestNVR"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""$thingName"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""nvr"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      }
+    ]
+  }
+}",derivant,
+0,NVR,delay,,delay,,"{""ms"":""30000""}",{},,
+0,NVR,確認是否還是 online,getDeviceInfo,query,"query MyQuery($mac: String!, $derivant: String) {
+  getDeviceInfo(input: {mac: $mac, derivant: $derivant}) {
+    items {
+      city
+      derivant
+      derivantMac
+      deviceGroupID
+      firmware
+      fisheye
+      fwUpgradeState
+      fwUpgradeVersion
+      ip
+      mac
+      model
+      modelType
+      name
+      online
+      organizationID
+      ptz
+      recording
+      thingName
+      timezone
+      type
+      vca {
+        capability
+        version
+      }
+    }
+  }
+}","{
+  ""mac"":""0002D1A96009"",
+  ""derivant"":""""
+}","{
+  ""getDeviceInfo"": {
+    ""items"": [
+      {
+        ""city"": null,
+        ""derivant"": ""ch0"",
+        ""derivantMac"": ""0002D1A5F06E"",
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""1.2101.37.01i"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""169.254.10.122"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""FD9387-FR-v2"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""NVR channel 1"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": true,
+        ""thingName"": ""$thingName"",
+        ""timezone"": null,
+        ""type"": ""nvrchannel"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      },
+      {
+        ""city"": null,
+        ""derivant"": ""ch1"",
+        ""derivantMac"": ""0002D19C1498"",
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""1.2102.33.01j"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""169.254.7.193"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""IB9389-EHT-v2"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""NVR channel 2"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": true,
+        ""thingName"": ""$thingName"",
+        ""timezone"": null,
+        ""type"": ""nvrchannel"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      },
+      {
+        ""city"": ""AsiaTaipei"",
+        ""derivant"": ""none"",
+        ""derivantMac"": null,
+        ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""firmware"": ""5.9.424"",
+        ""fisheye"": false,
+        ""fwUpgradeState"": null,
+        ""fwUpgradeVersion"": null,
+        ""ip"": ""172.18.1.215"",
+        ""mac"": ""0002D1A96009"",
+        ""model"": ""ND9442P"",
+        ""modelType"": ""Unknown"",
+        ""name"": ""TestNVR"",
+        ""online"": true,
+        ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""ptz"": false,
+        ""recording"": false,
+        ""thingName"": ""$thingName"",
+        ""timezone"": ""CST-8"",
+        ""type"": ""nvr"",
+        ""vca"": {
+          ""capability"": null,
+          ""version"": null
+        }
+      }
+    ]
+  }
+}",derivant,
+0,NVR,刪除裝置,batchDeleteDevice,mutate,"mutation MyMutation($mac: String!, $derivant: String!) {
+  batchDeleteDevice(input: {items: {mac: $mac, derivant: $derivant}}) {
+    failedItems {
+      mac
+      derivant
+    }
+    res
+  }
+}","{
+  ""mac"":""0002D1A96009"",
+  ""derivant"":""none""
+}","{
+  ""batchDeleteDevice"": {
+    ""failedItems"": null,
+    ""res"": true
+  }
+}",,
+0,NVR,unsubscribe,,unsubscribe,,{},{},,"{""key"": ""NVR/subscribeDeviceState""}"
+,Message,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",""password"":""Vsaas123""}",{},,
+,Message,create FakeMessage,,MqttIot,$aws/rules/hulkSendEvent/0002D1A3D5FE-1686303081748,"{
+  ""time"": ""${now_+0s_unixMsString}"",
+  ""localtime"": ""${now_+0s_unixMsString}"",
+  ""type"": ""Intrusion"",
+  ""name"": ""UAT_Rule_Fake_Name"",
+  ""index"": ""UAT_Rule_Fake_Index"",
+  ""thumbnails3key"": ""NotExist""
+}",{},,
+,Message,delay 1s,,delay,,"{""ms"":""1000""}",{},,
+,Message,Message 列表,queryMessage,vortex,"query MyQuery(
+  $organizationID: ID!
+  $thingName: String!
+  $derivant: String!
+  $start: String!
+  $end: String!
+  $triggerType: [String!]
+) {
+  queryMessage(
+    organizationID: $organizationID
+    filter: {
+      source: [{ derivant: $derivant, thingName: $thingName }]
+      triggerType: $triggerType
+      time: { start: $start, end: $end }
+    }
+    limit: 100
+  ) {
+    items {
+      type
+      time
+      thumbnails3key
+      source {
+        thingName
+        derivant
+      }
+      name
+      localtime
+      extraInfo
+      eventID
+    }
+    totalCount
+    nextToken
+  }
+}","{
+  ""organizationID"":""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""thingName"":""0002D1A3D5FE-1686303081748"",
+  ""derivant"":""none"",
+  ""start"":""${now_-10s_unixS}"",
+  ""end"":""${now_+0s_unixS}"",
+  ""triggerType"":[""Intrusion""]
+}","{
+  ""queryMessage"": {
+    ""items"": [
+      {
+        ""type"": ""Intrusion"",
+        ""thumbnails3key"": ""NotExist"",
+        ""source"": {
+          ""thingName"": ""0002D1A3D5FE-1686303081748"",
+          ""derivant"": ""none""
+        },
+        ""name"": ""UAT_Rule_Fake_Name"",
+        ""eventID"": ""=$eventID""
+      }
+    ],
+    ""totalCount"": 1,
+    ""nextToken"": null
+  }
+}",,
+,Message,Message 資訊,getMessage,vortex,"query MyQuery($thingName: String!, $derivant: String!, $eventID: String!) {
+  getMessage(
+    eventID: $eventID
+    source: { derivant: $derivant, thingName: $thingName }
+  ) {
+    source {
+      thingName
+      derivant
+    }
+    time
+    type
+    thumbnails3key
+    name
+    localtime
+    extraInfo
+    eventID
+  }
+}","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""derivant"": ""none"",
+  ""eventID"": ""$eventID""
+}","{
+  ""getMessage"": {
+    ""source"": {
+      ""thingName"": ""0002D1A3D5FE-1686303081748"",
+      ""derivant"": ""none""
+    },
+    ""type"": ""Intrusion"",
+    ""thumbnails3key"": ""NotExist"",
+    ""name"": ""UAT_Rule_Fake_Name"",
+    ""extraInfo"": null,
+    ""eventID"": ""$eventID""
+  }
+}",,
+0,Message,回報分析錯誤,userFeedback,AI/POST,,,,,
+0,Message,取得回報狀況,userFeedbackStatus,AI/GET,,,,,
+,DeepSearch,signIn,,signIn,,"{""username"":""serverUAT3@vivotek.com"",""password"":""Vsaas123""}",{},,
+,DeepSearch,deepsearch_first,,AI/POST,/deepsearch_first,"{
+  ""group_list"": [
+    ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+  ],
+  ""mac_list"": [],
+  ""start"": ""2023-06-20-15-23-03"",
+  ""end"": ""2023-06-21-03-23-03"",
+  ""task_start"": ""2023-06-20-15-23-03"",
+  ""task_end"": ""2023-06-21-03-23-03"",
+  ""obj_type"": ""Human"",
+  ""trace"": """",
+  ""trace_type"": -1,
+  ""trace_parameter1"": -1,
+  ""trace_rule_parameter"": ""{}"",
+  ""is_asc"": false,
+  ""force_json"": true
+}",{},,
+,AlarmSetting,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,AlarmSetting,createOrganizationAlarmSetting,createOrganizationAlarmSetting,vortex,"mutation createOrganizationAlarmSetting(
+  $organizationID: ID!
+  $alarmName: String!
+  $events: [String]!
+  $actions: [String]!
+  $scheduleBitwise: [String]!
+) {
+  createOrganizationAlarmSetting(
+    organizationID: $organizationID
+    alarmName: $alarmName
+    events: $events
+    actions: $actions
+    scheduleBitwise: $scheduleBitwise
+  ) {
+    alarmID
+    getSettingsURL
+    putSettingsURL
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""alarmName"": ""TestCreateAlarm"",
+  ""actions"": [
+    ""mobileNotification"",
+    ""sendEmail""
+  ],
+  ""events"": [
+    ""Intrusion""
+  ],
+  ""scheduleBitwise"": [
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF""
+  ]
+}","{
+  ""createOrganizationAlarmSetting"": {
+    ""alarmID"": ""=$alarmID"",
+    ""putSettingsURL"": ""=$putSettingsURL"",
+    ""getSettingsURL"": ""=$getSettingsURL""
+  }
+}",,
+,AlarmSetting,put other setting to s3,,http/PUT,$putSettingsURL,"{
+  ""recipient"": {
+    ""mobileNotificationMember"": [
+      ""serveruat3@vivotek.com""
+    ],
+    ""sendEmailMember"": [
+      ""serveruat3@vivotek.com""
+    ]
+  },
+  ""source"": [
+    {
+      ""thingName"": ""0002D1A3D5FE-1686303081748"",
+      ""derivant"": ""none""
+    }
+  ]
+}",,,
+,AlarmSetting,queryOrganizationAlarmSetting,queryOrganizationAlarmSetting,vortex,"query queryOrganizationAlarmSetting($organizationID: ID!) {
+  queryOrganizationAlarmSetting(organizationID: $organizationID) {
+    alarmID
+    alarmName
+    events
+    actions
+    scheduleBitwise
+    createdBy
+    getSettingsURL
+    putSettingsURL
+    enable
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""queryOrganizationAlarmSetting"": [
+    {
+      ""alarmID"": ""$alarmID"",
+      ""alarmName"": ""TestCreateAlarm"",
+      ""events"": [
+        ""Intrusion""
+      ],
+      ""actions"": [
+        ""mobileNotification"",
+        ""sendEmail""
+      ],
+      ""scheduleBitwise"": [
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF""
+      ],
+      ""createdBy"": ""serveruat3@vivotek.com"",
+      ""getSettingsURL"": ""=$getSettingsURL"",
+      ""putSettingsURL"": ""=$putSettingsURL"",
+      ""enable"": true
+    }
+  ]
+}",,
+,AlarmSetting,get other setting from s3,,http/GET,$getSettingsURL,,"{
+    ""recipient"": {
+        ""mobileNotificationMember"": [
+            ""serveruat3@vivotek.com""
+        ],
+        ""sendEmailMember"": [
+            ""serveruat3@vivotek.com""
+        ],
+        ""sendEmailSI"": []
+    },
+    ""source"": [
+        {
+            ""thingName"": ""0002D1A3D5FE-1686303081748"",
+            ""derivant"": ""none""
+        }
+    ],
+    ""do"": [],
+    ""webhook"": {},
+    ""networkSpeaker"": []
+}",,
+,AlarmSetting,updateOrganizationAlarmSetting,改名、移除寄信,vortex,"mutation updateOrganizationAlarmSetting(
+  $alarmID: ID!
+  $alarmName: String!
+  $events: [String]!
+  $actions: [String]!
+  $scheduleBitwise: [String]!
+) {
+  updateOrganizationAlarmSetting(
+    alarmID: $alarmID
+    alarmName: $alarmName
+    events: $events
+    actions: $actions
+    scheduleBitwise: $scheduleBitwise
+  )
+}","{
+  ""alarmID"": ""$alarmID"",
+  ""alarmName"": ""TestCreateAlarmRenameTest"",
+  ""events"": [
+    ""Intrusion""
+  ],
+  ""actions"": [
+    ""mobileNotification""
+  ],
+  ""scheduleBitwise"": [
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF"",
+    ""0xFFFFFFFFFFFF""
+  ]
+}","{
+  ""updateOrganizationAlarmSetting"": null
+}",,
+,AlarmSetting,put other setting to s3,移除寄信,http/PUT,$putSettingsURL,"{
+  ""recipient"": {
+    ""mobileNotificationMember"": [
+      ""serveruat3@vivotek.com""
+    ]
+  },
+  ""source"": [
+    {
+      ""thingName"": ""0002D1A3D5FE-1686303081748"",
+      ""derivant"": ""none""
+    }
+  ]
+}",,,
+,AlarmSetting,switchOrganizationAlarmSetting,disable alarm,vortex,"mutation switchOrganizationAlarmSetting($alarmID: ID!, $enable: Boolean!) {
+  switchOrganizationAlarmSetting(alarmID: $alarmID, enable: $enable)
+}","{
+  ""alarmID"": ""$alarmID"",
+  ""enable"": false
+}","{
+  ""switchOrganizationAlarmSetting"": null
+}",,
+,AlarmSetting,queryOrganizationAlarmSetting,queryOrganizationAlarmSetting,vortex,"query queryOrganizationAlarmSetting($organizationID: ID!) {
+  queryOrganizationAlarmSetting(organizationID: $organizationID) {
+    alarmID
+    alarmName
+    events
+    actions
+    scheduleBitwise
+    createdBy
+    getSettingsURL
+    putSettingsURL
+    enable
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""queryOrganizationAlarmSetting"": [
+    {
+      ""alarmID"": ""$alarmID"",
+      ""alarmName"": ""TestCreateAlarmRenameTest"",
+      ""events"": [
+        ""Intrusion""
+      ],
+      ""actions"": [
+        ""mobileNotification""
+      ],
+      ""scheduleBitwise"": [
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF"",
+        ""0xFFFFFFFFFFFF""
+      ],
+      ""createdBy"": ""serveruat3@vivotek.com"",
+      ""getSettingsURL"": ""=$getSettingsURL"",
+      ""putSettingsURL"": ""=$putSettingsURL"",
+      ""enable"": false
+    }
+  ]
+}",,
+,AlarmSetting,get other setting from s3,,http/GET,$getSettingsURL,,"{
+    ""recipient"": {
+        ""mobileNotificationMember"": [
+            ""serveruat3@vivotek.com""
+        ],
+        ""sendEmailMember"": [],
+        ""sendEmailSI"": []
+    },
+    ""source"": [
+        {
+            ""thingName"": ""0002D1A3D5FE-1686303081748"",
+            ""derivant"": ""none""
+        }
+    ],
+    ""do"": [],
+    ""webhook"": {},
+    ""networkSpeaker"": []
+}",,
+,AlarmSetting,deleteOrganizationAlarmSetting,deleteOrganizationAlarmSetting,vortex,"mutation deleteOrganizationAlarmSetting($alarmID: ID!) {
+  deleteOrganizationAlarmSetting(alarmID: $alarmID)
+}","{
+  ""alarmID"": ""$alarmID""
+}","{
+  ""deleteOrganizationAlarmSetting"": null
+}",,
+,Archive,signIn,signIn,signIn,,"{""username"":""serverUAT3@vivotek.com"",
+  ""password"":""Vsaas123""
+}",{},,
+,Archive,subscribe Archive,subscribeArchiveState,subscribe,"subscription MySubscription {
+  subscribeArchiveState {
+    createdAt
+    deviceGroupID
+    status
+    sub
+    thingName
+    videoLength
+    videoSize
+  }
+}",{},{},,"{""key"": ""Archive/subscribeArchiveState""}"
+,Archive,create Archive,createArchive,vortex,"mutation MyMutation(
+  $organizationID: ID!
+  $creatorEmail: String!
+  $creatorNickname: String!
+  $thingName: String!
+  $source: Source
+  $startAt: String!
+  $endAt: String!
+  $filename: String!
+) {
+  createArchive(
+    input: {
+      organizationID: $organizationID
+      creatorEmail: $creatorEmail
+      creatorNickname: $creatorNickname
+      thingName: $thingName
+      source: $source
+      startAt: $startAt
+      endAt: $endAt
+      filename: $filename
+    }
+  ) {
+    res
+    archive {
+      createdAt
+      creatorEmail
+      creatorNickname
+      endAt
+      filename
+      id
+      owner
+      startAt
+      status
+      taskArn
+      thingName
+      updatedAt
+      videoSize
+      videoLength
+    }
+  }
+}
+","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+  ""creatorEmail"": ""serverUAT3@vivotek.com"",
+  ""creatorNickname"": ""serverUAT3"",
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""source"": ""CAMERA"",
+  ""startAt"": ""${now_-10m_iso8601}"",
+  ""endAt"": ""${now_-5m_iso8601}"",
+  ""filename"": ""Archive_Test""
+}","{
+  ""createArchive"": {
+    ""res"": true,
+    ""archive"": {
+      ""id"": ""=$id"",
+      ""owner"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+      ""creatorEmail"": ""serverUAT3@vivotek.com"",
+      ""creatorNickname"": ""serverUAT3"",
+      ""thingName"": ""0002D1A3D5FE-1686303081748"",
+      ""startAt"": ""=$startAt"",
+      ""endAt"": ""=$endAt"",
+      ""filename"": ""Archive_Test"",
+      ""status"": ""START_ARCHIVE"",
+      ""createdAt"": ""=$createdAt"",
+      ""updatedAt"": ""=$updatedAt"",
+      ""taskArn"": null,
+      ""videoSize"": null,
+      ""videoLength"": null
+    }
+  }
+}",,
+,Archive,等待狀態變為 UPLOADING,,onSubscribe,,{},"{
+  ""subscribeArchiveState"": {
+    ""createdAt"": ""=$createdAt"",
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""status"": ""UPLOADING"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""videoLength"": 0,
+    ""videoSize"": 0
+  }
+}",,"{""key"":""Archive/subscribeArchiveState"",""timeout"":80000}"
+,Archive,delay 1s,,delay,,"{""ms"":""1000""}",{},,
+,Archive,Archive 列表,queryArchive,vortex,"query MyQuery($organizationID: ID!) {
+  queryArchive(
+    organizationID: $organizationID
+    nextToken: null
+    filter: { device: null }
+  ) {
+    items {
+      id
+      owner
+      creatorEmail
+      creatorNickname
+      thingName
+      startAt
+      endAt
+      filename
+      status
+      createdAt
+      updatedAt
+      taskArn
+      videoSize
+      videoLength
+      sharedToken
+    }
+    totalCount
+    nextToken
+  }
+}","{
+  ""organizationID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5""
+}","{
+  ""queryArchive"": {
+    ""items"": [
+      {
+        ""id"": ""$id"",
+        ""owner"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+        ""creatorEmail"": ""serverUAT3@vivotek.com"",
+        ""creatorNickname"": ""serverUAT3"",
+        ""thingName"": ""0002D1A3D5FE-1686303081748"",
+        ""startAt"": ""=$startAt"",
+        ""endAt"": ""=$endAt"",
+        ""filename"": ""Archive_Test"",
+        ""status"": ""UPLOADING"",
+        ""createdAt"": ""$createdAt"",
+        ""updatedAt"": ""=$updatedAt"",
+        ""taskArn"": null,
+        ""videoSize"": 0,
+        ""sharedToken"": """"
+      }
+    ],
+    ""totalCount"": 1,
+    ""nextToken"": ""=$nextToken""
+  }
+}",,
+,Archive,Archive 改名,updateArchive,vortex,"mutation MyMutation(
+  $thingName: String!
+  $createdAt: String!
+  $filename: String
+) {
+  updateArchive(
+    input: { thingName: $thingName, createdAt: $createdAt, filename: $filename }
+  ) {
+    res
+  }
+}","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""createdAt"": ""$createdAt"",
+  ""filename"": ""Archive_Rename_Test""
+}","{
+  ""updateArchive"": {
+    ""res"": true
+  }
+}",,
+,Archive,等待狀態變為 UPLOAD_DONE,,onSubscribe,,{},"{
+  ""subscribeArchiveState"": {
+    ""createdAt"": ""=$createdAt"",
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""status"": ""UPLOAD_DONE"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""videoLength"": 0,
+    ""videoSize"": 0
+  }
+}",,"{""key"":""Archive/subscribeArchiveState"",""timeout"":100000}"
+,Archive,等待狀態變為 HLS_READY,,onSubscribe,,{},"{
+  ""subscribeArchiveState"": {
+    ""createdAt"": ""=$createdAt"",
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""status"": ""HLS_READY"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""videoSize"": 0
+  }
+}",,"{""key"":""Archive/subscribeArchiveState"",""timeout"":5000}"
+,Archive,getArchiveCookie,,vortex,"query MyQuery($thingName: String!, $createdAt: String!) {
+  getArchiveCookie(input: { thingName: $thingName, createdAt: $createdAt }) {
+    cookie
+    err
+  }
+}","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""createdAt"": ""$createdAt""
+}","{
+  ""getArchiveCookie"": {
+    ""cookie"": ""=$cookie"",
+    ""err"": null
+  }
+}",,
+,Archive,轉 mp4,genMp4,vortex,"mutation MyMutation($thingName: String!, $createdAt: String!) {
+  genMp4(input: { thingName: $thingName, createdAt: $createdAt }) {
+    res
+  }
+}","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""createdAt"": ""$createdAt""
+}","{
+  ""genMp4"": {
+    ""res"": true
+  }
+}",,
+,Archive,等待狀態變為 GEN_MP4,,onSubscribe,,{},"{
+  ""subscribeArchiveState"": {
+    ""createdAt"": ""=$createdAt"",
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""status"": ""GEN_MP4"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""videoSize"": 0
+  }
+}",,"{""key"":""Archive/subscribeArchiveState"",""timeout"":3000}"
+,Archive,等待狀態變為 MP4_READY,,onSubscribe,,{},"{
+  ""subscribeArchiveState"": {
+    ""createdAt"": ""=$createdAt"",
+    ""deviceGroupID"": ""fba8254a-7890-4d95-bcb3-7df04767b9b5"",
+    ""status"": ""MP4_READY"",
+    ""sub"": ""bab58331-bbff-4fcd-8a1e-b5462240bf07"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748""
+  }
+}",,"{""key"":""Archive/subscribeArchiveState"",""timeout"":600000}"
+,Archive,share Archive,switchArchiveSharing,vortex,"mutation MyMutation(
+  $thingName: String!
+  $createdAt: String!
+  $enable: Boolean!
+) {
+  switchArchiveSharing(
+    thingName: $thingName
+    createdAt: $createdAt
+    enable: $enable
+  )
+}
+","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""createdAt"": ""$createdAt"",
+  ""enable"": true
+}","{
+  ""switchArchiveSharing"": ""=$sharedToken""
+}",,
+,Archive,getSharedArchiveCookie,,vortex,"query MyQuery($sharedToken: String!) {
+  getSharedArchiveCookie(sharedToken: $sharedToken) {
+    videoLength
+    thingName
+    startAt
+    orgName
+    fileName
+    deviceName
+    deviceGroupName
+    creatorEmail
+    createdAt
+    cookie
+  }
+}","{
+  ""sharedToken"": ""$sharedToken""
+}","{
+  ""getSharedArchiveCookie"": {
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""createdAt"": ""$createdAt"",
+    ""orgName"": ""serverUAT3OrganizationName"",
+    ""creatorEmail"": ""serverUAT3@vivotek.com"",
+    ""deviceName"": ""UAT"",
+    ""deviceGroupName"": ""Ungrouped Cameras"",
+    ""startAt"": ""=$startAt"",
+    ""fileName"": ""Archive_Rename_Test"",
+    ""cookie"": ""=$sharedArchiveCookie""
+  }
+}",,
+,Archive,delete Archive,deleteArchive,vortex,"mutation MyMutation($thingName: String!, $createdAt: String!) {
+  deleteArchive(
+    input: { thingName: $thingName, createdAt: $createdAt }
+  ) {
+    res
+  }
+}","{
+  ""thingName"": ""0002D1A3D5FE-1686303081748"",
+  ""createdAt"": ""$createdAt""
+}","{
+  ""deleteArchive"": {
+    ""res"": true
+  }
+}",,
+,Archive,unsubscribe,,unsubscribe,,{},{},,"{""key"": ""Archive/subscribeArchiveState""}"
+0,Live/Playback,preoffer,,,,,,,
+0,Cloud backup,updateRecordingConfigByLambda,,,,,,,
+0,Cloud backup,getRecordingConfigAuth,,,,,,,
+0,Cloud backup,getTimelineAuth,,,"query MyQuery {
+  getTimelineAuth(thingName: ""0002D1A3D5FE-1686303081748"", date: ""2023-06-30"") {
+    id
+    thingName
+    date
+    segments {
+      startAt
+      endAt
+    }
+  }
+}",,"{
+  ""getTimelineAuth"": {
+    ""id"": ""bfc06585-f002-4f4f-b8ec-bbcf8ff40575"",
+    ""thingName"": ""0002D1A3D5FE-1686303081748"",
+    ""date"": ""2023-06-30"",
+    ""segments"": [
+      {
+        ""startAt"": ""2023-06-30T03:00:03Z"",
+        ""endAt"": ""2023-06-30T08:00:03Z""
+      }
+    ]
+  }
+}",,
+0,Cloud backup,queryRecordingMonth,,,,,,,
+0,Cloud backup,getCloudBackupCookie,,,,,,,
+0,Other,getVersion,,,,,,,
+0,Other,queryUserPolicy,,query,"query Query($organizationID: ID!) {
+  queryUserPolicy(organizationID: $organizationID) }","{""organizationID"":""c1e5d558-1eca-4b26-84dc-9aaefd0b7ed3""}","{""queryUserPolicy"":""p,org/owner,c1e5d558-1eca-4b26-84dc-9aaefd0b7ed3,/org,*\np,org/owner,c1e5d558-1eca-4b26-84dc-9aaefd0b7ed3,/org/*,*\ng,cad11cae-74c8-4659-879e-c49e9ad7eea4,org/owner,c1e5d558-1eca-4b26-84dc-9aaefd0b7ed3\n""}",,
+0,PushNotification,createPushNotificationToken,,,,,,,
+0,PushNotification,deletePushNotificationToken,,,,,,,
+0,SI,addSIUserToOrganization,,,,,,,
+0,SI,listSIOfOrganization,,,,,,,
+0,SI,setSIUserRemoteAccess,,,,,,,
+0,SI,removeSIUserFromOrganization,,,,,,,
+0,Penelope,switchPenelope,,,,,,,
+0,Penelope,queryPenelopeState,,,,,,,
+0,OTA,updateFirmwareMaintenanceWindow,,,,,,,
+0,OTA,queryFirmwareMaintenanceWindow,,,,,,,
+0,Subscription,subscribeRoleChange,,,,,,,
+0,Subscription,subscribeDeviceState,,,,,,,
+0,Subscription,subscribeOrganizationState,,,,,,,
+0,IPSpeaker,createOrganizationIPSpeaker,,,,,,,
+0,IPSpeaker,queryOrganizationIPSpeaker,,,,,,,
+0,IPSpeaker,updateOrganizationIPSpeaker,,,,,,,
+0,IPSpeaker,grantIPSpeakerAudioPresignedURL,,,,,,,
+0,IPSpeaker,changeIPSpeakerPassword,,,,,,,
+0,IPSpeaker,rollbackIPSpeakerPassword,,,,,,,
+0,IPSpeaker,deleteOrganizationIPSpeaker,,,,,,,
