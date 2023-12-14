@@ -21,31 +21,33 @@ class ViewModel: ObservableObject, StreamingActionProvider {
     }
 }
 
+let channelRange: ClosedRange<Int> = 0...31
+
 struct ContentView: View {
     @StateObject var viewModel = ViewModel()
     
     @State private var ip = "172.18.1.232"
     @State private var port: Double? = 80
+    @AppStorage("connectDeviceUser") private var connectDeviceUser = "root"
+    @AppStorage("connectDevicePassword") private var connectDevicePassword = "vssdtest123"
+    
     private let streams: [Int] = [0, 1]
     @State private var streamIndex = 0
-    private let channels: [Int] = [0, 1]
+    private let channels: [Int] = Array(channelRange)
     @State private var channelIndex = 0
     
     var body: some View {
         GeometryReader { geometry in
             NavigationStack {
-                VStack(spacing: 0) {
+                ScrollView {
                     Color.black.overlay(
                         StreamingViewWrapper(streamingActionProvider: viewModel)
                             .frame(maxWidth: .infinity)
                     )
                     .clipped()
                     .frame(width: geometry.size.width, height: geometry.size.width * 3/4)
-                    .contentShape(.rect)
                     
                     settings
-                        .padding(.top, 8)
-                        .padding(.horizontal, 16)
 
                     Spacer()
                     
@@ -66,13 +68,26 @@ struct ContentView: View {
     }
     
     var settings: some View {
-        Group {
-            TextField("ip", text: $ip, prompt: Text("ip"))
+        VStack(spacing: 0) {
+            Group {
+                TextField("ip", text: $ip, prompt: Text("ip"))
+                TextField("port", value: $port, format: .number, prompt: Text("port"))
+            }
+            .padding()
+            .background(Color(.colorSurface03))
+            .padding(.top, 8)
+            .padding(.horizontal, 16)
+            
+            HStack(spacing: 0) {
+                Group {
+                    TextField("user", text: $connectDeviceUser, prompt: Text("user"))
+                    TextField("password", text: $connectDevicePassword, prompt: Text("password"))
+                }
                 .padding()
                 .background(Color(.colorSurface03))
-            TextField("port", value: $port, format: .number, prompt: Text("port"))
-                .padding()
-                .background(Color(.colorSurface03))
+            }
+            .padding(.top, 8)
+            .padding(.horizontal, 16)
             
             HStack {
                 Text("Stream")
@@ -85,23 +100,27 @@ struct ContentView: View {
                 }
                 Spacer()
             }
+            .padding(.top, 8)
+            .padding(.horizontal, 16)
             
             HStack {
                 Text("Channel")
                     .font(.system(size: 15, weight: .regular, design: .default))
                     .foregroundColor(Color(.colorText05))
                 Picker("channelIndex", selection: $channelIndex) {
-                    Text("\(channels[0])").tag(0)
-                    Text("\(channels[1])").tag(1)
+                    ForEach(channelRange, id: \.self) { index in
+                        Text("\(channels[index])").tag(index)
+                    }
                 }
                 Spacer()
             }
+            .padding(.top, 8)
+            .padding(.horizontal, 16)
         }
-
     }
     
     var buttons: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             Button(action: {
                 viewModel.startStreaming(ip: ip, port: Int(port!), streamIndex: streamIndex, channelIndex: channelIndex)
             }) {

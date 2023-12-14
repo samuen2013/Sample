@@ -114,9 +114,16 @@ SCODE __stdcall DataBrokerAVCallBack(DWORD_PTR dwContext, TMediaDataPacketInfo *
     opt.pzServerType = (char *)[@"Darwin" UTF8String];
     opt.pzIPAddr = (char *)[ip UTF8String];
     opt.dwFlags = eConOptProtocolAndMediaType | eConOptHttpPort | (eConOptStatusCallback | eConOptStatusContext) | (eConOptAVCallback | eConOptAVContext);
-    opt.pzUID = (char *)[@"admin" UTF8String];
-    opt.pzPWD = (char *)[@"vssdtest123" UTF8String];
     
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *user = [prefs stringForKey:@"connectDeviceUser"];
+    if (user != nil) {
+        opt.pzUID = (char *)[user UTF8String];
+    }
+    NSString *pwd = [prefs stringForKey:@"connectDevicePassword"];
+    if (pwd != nil) {
+        opt.pzPWD = (char *)[pwd UTF8String];
+    }
     scRet = DataBroker_SetConnectionOptions(_g_hConn, &opt);
     if (scRet != S_OK) return;
     
