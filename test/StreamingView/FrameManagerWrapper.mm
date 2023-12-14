@@ -157,7 +157,6 @@ typedef struct {
     if (_videoDecodeThread) {
         _releaseVideoRelated = true;
         [_videoDecodeThread cancel];
-        [_videoDecodeThread dealloc];
         _videoDecodeThread = nil;
     }
 }
