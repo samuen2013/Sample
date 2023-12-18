@@ -1,7 +1,7 @@
 import UIKit
 import CoreFoundation
 
-open class H264NalUnit: NalUnitProtocol {
+open class H264NalUnit: NSObject, NalUnitProtocol {
     
     open private(set) var bufferSize: Int
     open private(set) var buffer: UnsafePointer<UInt8>

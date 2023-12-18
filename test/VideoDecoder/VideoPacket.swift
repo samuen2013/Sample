@@ -1,52 +1,46 @@
 import UIKit
 
-public enum EncodeType {
+@objc
+public enum EncodeType: Int {
     case h264
     case h265
 }
 
-open class VideoPacket {
-
+open class VideoPacket: NSObject {
     open private(set) var type: EncodeType
     open private(set) var buffer: UnsafePointer<UInt8>
     open private(set) var bufferSize: Int
-    open private(set) var fps: Int
-    open private(set) var isIFrame: Bool
-    open private(set) var videoSize: CGSize
-        
-    public convenience init(_ data: NSData, fps: Int, isIFrame: Bool = false, type: EncodeType, videoSize: CGSize) {
+
+    @objc
+    public convenience init(_ data: NSData, type: EncodeType) {
         let buffer = data as Data
-        self.init(buffer, fps: fps, isIFrame: isIFrame, type: type, videoSize: videoSize)
+        self.init(buffer, type: type)
     }
     
-    public convenience init(_ data: Data, fps: Int, isIFrame: Bool = false, type: EncodeType, videoSize: CGSize) {
+    public convenience init(_ data: Data, type: EncodeType) {
         let buffer = [UInt8](data)
-        self.init(buffer, fps: fps, isIFrame: isIFrame, type: type, videoSize: videoSize)
+        self.init(buffer, type: type)
     }
     
-    public convenience init(_ data: [UInt8], fps: Int, isIFrame: Bool = false, type: EncodeType, videoSize: CGSize) {
+    public convenience init(_ data: [UInt8], type: EncodeType) {
         let uint8Pointer = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
         uint8Pointer.initialize(from: data, count:data.count)
         let buffer = UnsafePointer(uint8Pointer)
-        self.init(buffer, bufferSize: data.count, fps: fps, isIFrame: isIFrame, type: type, videoSize: videoSize)
+        self.init(buffer, bufferSize: data.count, type: type)
         buffer.deallocate()
     }
     
-    public init(_ buffer: UnsafePointer<UInt8>, bufferSize: Int, fps: Int, isIFrame: Bool = false, type: EncodeType, videoSize: CGSize) {
-        
+    @objc
+    public init(_ buffer: UnsafePointer<UInt8>, bufferSize: Int, type: EncodeType) {
         self.buffer = buffer.copy(capacity: bufferSize)
         self.bufferSize = bufferSize
-        self.fps = fps;
-        self.isIFrame = isIFrame
         self.type = type
-        self.videoSize = videoSize
-        
+        super.init()
     }
     
     deinit {
         buffer.deallocate()
     }
-  
 }
 
 public extension VideoPacket {

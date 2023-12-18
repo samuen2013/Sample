@@ -1,7 +1,8 @@
 import UIKit
 import CoreMedia
 
-open class NalUnitParser {
+@objc
+open class NalUnitParser: NSObject {
 
     private class var startCode: UnsafeMutablePointer<UInt8> {
         let start: [UInt8] = [0,0,0,1]
@@ -9,7 +10,8 @@ open class NalUnitParser {
         let rawPointer = UnsafeMutableRawPointer(mutating: startBuffer.baseAddress!)
         return rawPointer.bindMemory(to: UInt8.self, capacity: 4)
     }
-    
+
+    @objc
     open class func unitParser(packet: VideoPacket) -> [NalUnitProtocol] {
         var nalUnits: [NalUnitProtocol] = []
         let length = packet.bufferSize;

@@ -1,6 +1,6 @@
 import UIKit
 
-open class H265NalUnit: NalUnitProtocol {
+open class H265NalUnit: NSObject, NalUnitProtocol {
     
     open private(set) var bufferSize: Int
     open private(set) var buffer: UnsafePointer<UInt8>

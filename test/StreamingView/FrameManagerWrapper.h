@@ -6,7 +6,7 @@
 //
 
 #import "FrameManagerWrapperDelegate.h"
-#import "FrameManager/HWDecoder.h"
+#import "FrameManager/HWDecoderDelegate.h"
 #import "FrameManager/RemoteIOPlayer.h"
 
 @interface FrameManagerWrapper : NSObject<HWDecoderDelegate, RemoteIOPlayerDelegate>

@@ -7,16 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		50323CDF2B2B053E00EB07F6 /* CMSampleBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CD52B2B053D00EB07F6 /* CMSampleBuffer+Extension.swift */; };
-		50323CE02B2B053E00EB07F6 /* NalUnitProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CD62B2B053D00EB07F6 /* NalUnitProtocol.swift */; };
-		50323CE12B2B053E00EB07F6 /* VideoPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CD72B2B053D00EB07F6 /* VideoPacket.swift */; };
-		50323CE22B2B053E00EB07F6 /* H265Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CD82B2B053D00EB07F6 /* H265Decoder.swift */; };
-		50323CE32B2B053E00EB07F6 /* NalUnitParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CD92B2B053D00EB07F6 /* NalUnitParser.swift */; };
-		50323CE42B2B053E00EB07F6 /* UnsafePointer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CDA2B2B053D00EB07F6 /* UnsafePointer+Extension.swift */; };
-		50323CE52B2B053E00EB07F6 /* H264NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CDB2B2B053E00EB07F6 /* H264NalUnit.swift */; };
-		50323CE62B2B053E00EB07F6 /* H265NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CDC2B2B053E00EB07F6 /* H265NalUnit.swift */; };
-		50323CE72B2B053E00EB07F6 /* H264Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CDD2B2B053E00EB07F6 /* H264Decoder.swift */; };
-		50323CE82B2B053E00EB07F6 /* VideoDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50323CDE2B2B053E00EB07F6 /* VideoDecoder.swift */; };
+		5056C81B2B3028E300CD37ED /* H265Decoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5056C81A2B3028E300CD37ED /* H265Decoder.mm */; };
+		5056C8292B30301900CD37ED /* CMSampleBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */; };
+		5056C82A2B30301900CD37ED /* UnsafePointer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */; };
+		5056C82D2B30301900CD37ED /* NalUnitProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8232B30301900CD37ED /* NalUnitProtocol.swift */; };
+		5056C82E2B30301900CD37ED /* VideoPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8242B30301900CD37ED /* VideoPacket.swift */; };
+		5056C8302B30301900CD37ED /* H265NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8262B30301900CD37ED /* H265NalUnit.swift */; };
+		5056C8312B30301900CD37ED /* H264NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8272B30301900CD37ED /* H264NalUnit.swift */; };
+		5056C8322B30301900CD37ED /* NalUnitParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8282B30301900CD37ED /* NalUnitParser.swift */; };
 		5090A40B293DDED400AE5AFF /* testApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5090A40A293DDED400AE5AFF /* testApp.swift */; };
 		5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5090A40C293DDED400AE5AFF /* ContentView.swift */; };
 		5090A40F293DDED500AE5AFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5090A40E293DDED500AE5AFF /* Assets.xcassets */; };
@@ -26,7 +24,7 @@
 		50D432E02B2989BA006664E4 /* FrameParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432AD2B2989BA006664E4 /* FrameParser.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		50D432E12B2989BA006664E4 /* RemoteIOPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		50D432E22B2989BA006664E4 /* FrameManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B42B2989BA006664E4 /* FrameManager.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		50D432E32B2989BA006664E4 /* HWDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B52B2989BA006664E4 /* HWDecoder.mm */; };
+		50D432E32B2989BA006664E4 /* H264Decoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B52B2989BA006664E4 /* H264Decoder.mm */; };
 		50D432E42B2989BA006664E4 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B72B2989BA006664E4 /* NSData+Hex.m */; };
 		50D432E52B2989BA006664E4 /* G726.c in Sources */ = {isa = PBXBuildFile; fileRef = 50D432B92B2989BA006664E4 /* G726.c */; };
 		50D432E62B2989BA006664E4 /* FisheyeLibWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D432BC2B2989BA006664E4 /* FisheyeLibWrapper.swift */; };
@@ -84,16 +82,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		50323CD52B2B053D00EB07F6 /* CMSampleBuffer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMSampleBuffer+Extension.swift"; sourceTree = "<group>"; };
-		50323CD62B2B053D00EB07F6 /* NalUnitProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitProtocol.swift; sourceTree = "<group>"; };
-		50323CD72B2B053D00EB07F6 /* VideoPacket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPacket.swift; sourceTree = "<group>"; };
-		50323CD82B2B053D00EB07F6 /* H265Decoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H265Decoder.swift; sourceTree = "<group>"; };
-		50323CD92B2B053D00EB07F6 /* NalUnitParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitParser.swift; sourceTree = "<group>"; };
-		50323CDA2B2B053D00EB07F6 /* UnsafePointer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UnsafePointer+Extension.swift"; sourceTree = "<group>"; };
-		50323CDB2B2B053E00EB07F6 /* H264NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H264NalUnit.swift; sourceTree = "<group>"; };
-		50323CDC2B2B053E00EB07F6 /* H265NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H265NalUnit.swift; sourceTree = "<group>"; };
-		50323CDD2B2B053E00EB07F6 /* H264Decoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H264Decoder.swift; sourceTree = "<group>"; };
-		50323CDE2B2B053E00EB07F6 /* VideoDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoDecoder.swift; sourceTree = "<group>"; };
+		5056C8192B30262800CD37ED /* H265Decoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder.h; sourceTree = "<group>"; };
+		5056C81A2B3028E300CD37ED /* H265Decoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = H265Decoder.mm; sourceTree = "<group>"; };
+		5056C81C2B302A1500CD37ED /* HWDecoderDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HWDecoderDelegate.h; sourceTree = "<group>"; };
+		5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMSampleBuffer+Extension.swift"; sourceTree = "<group>"; };
+		5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UnsafePointer+Extension.swift"; sourceTree = "<group>"; };
+		5056C8232B30301900CD37ED /* NalUnitProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitProtocol.swift; sourceTree = "<group>"; };
+		5056C8242B30301900CD37ED /* VideoPacket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPacket.swift; sourceTree = "<group>"; };
+		5056C8262B30301900CD37ED /* H265NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H265NalUnit.swift; sourceTree = "<group>"; };
+		5056C8272B30301900CD37ED /* H264NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H264NalUnit.swift; sourceTree = "<group>"; };
+		5056C8282B30301900CD37ED /* NalUnitParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitParser.swift; sourceTree = "<group>"; };
 		5090A407293DDED400AE5AFF /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5090A40A293DDED400AE5AFF /* testApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testApp.swift; sourceTree = "<group>"; };
 		5090A40C293DDED400AE5AFF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -104,7 +102,7 @@
 		50D432A82B2989BA006664E4 /* StreamingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamingView.swift; sourceTree = "<group>"; };
 		50D432A92B2989BA006664E4 /* DataBrokerWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DataBrokerWrapper.mm; sourceTree = "<group>"; };
 		50D432AB2B2989BA006664E4 /* NSData+Hex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Hex.h"; sourceTree = "<group>"; };
-		50D432AC2B2989BA006664E4 /* HWDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HWDecoder.h; sourceTree = "<group>"; };
+		50D432AC2B2989BA006664E4 /* H264Decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = H264Decoder.h; sourceTree = "<group>"; };
 		50D432AD2B2989BA006664E4 /* FrameParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameParser.mm; sourceTree = "<group>"; };
 		50D432AE2B2989BA006664E4 /* AudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioDecoder.h; sourceTree = "<group>"; };
 		50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoteIOPlayer.h; sourceTree = "<group>"; };
@@ -112,7 +110,7 @@
 		50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RemoteIOPlayer.mm; sourceTree = "<group>"; };
 		50D432B32B2989BA006664E4 /* G726Decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = G726Decoder.h; sourceTree = "<group>"; };
 		50D432B42B2989BA006664E4 /* FrameManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameManager.mm; sourceTree = "<group>"; };
-		50D432B52B2989BA006664E4 /* HWDecoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HWDecoder.mm; sourceTree = "<group>"; };
+		50D432B52B2989BA006664E4 /* H264Decoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = H264Decoder.mm; sourceTree = "<group>"; };
 		50D432B62B2989BA006664E4 /* VideoDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecoder.h; sourceTree = "<group>"; };
 		50D432B72B2989BA006664E4 /* NSData+Hex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Hex.m"; sourceTree = "<group>"; };
 		50D432B82B2989BA006664E4 /* FrameParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameParser.h; sourceTree = "<group>"; };
@@ -195,19 +193,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		50323CD42B2B052700EB07F6 /* VideoDecoder */ = {
+		5056C81E2B30301900CD37ED /* VideoDecoder */ = {
 			isa = PBXGroup;
 			children = (
-				50323CD52B2B053D00EB07F6 /* CMSampleBuffer+Extension.swift */,
-				50323CDD2B2B053E00EB07F6 /* H264Decoder.swift */,
-				50323CDB2B2B053E00EB07F6 /* H264NalUnit.swift */,
-				50323CD82B2B053D00EB07F6 /* H265Decoder.swift */,
-				50323CDC2B2B053E00EB07F6 /* H265NalUnit.swift */,
-				50323CD92B2B053D00EB07F6 /* NalUnitParser.swift */,
-				50323CD62B2B053D00EB07F6 /* NalUnitProtocol.swift */,
-				50323CDA2B2B053D00EB07F6 /* UnsafePointer+Extension.swift */,
-				50323CDE2B2B053E00EB07F6 /* VideoDecoder.swift */,
-				50323CD72B2B053D00EB07F6 /* VideoPacket.swift */,
+				5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */,
+				5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */,
+				5056C8232B30301900CD37ED /* NalUnitProtocol.swift */,
+				5056C8242B30301900CD37ED /* VideoPacket.swift */,
+				5056C8262B30301900CD37ED /* H265NalUnit.swift */,
+				5056C8272B30301900CD37ED /* H264NalUnit.swift */,
+				5056C8282B30301900CD37ED /* NalUnitParser.swift */,
 			);
 			path = VideoDecoder;
 			sourceTree = "<group>";
@@ -232,7 +227,7 @@
 		5090A409293DDED400AE5AFF /* test */ = {
 			isa = PBXGroup;
 			children = (
-				50323CD42B2B052700EB07F6 /* VideoDecoder */,
+				5056C81E2B30301900CD37ED /* VideoDecoder */,
 				50D4332D2B299F08006664E4 /* ButtonStyle */,
 				50D433202B2996A4006664E4 /* Charmander */,
 				50D433092B298D19006664E4 /* extension.swift */,
@@ -287,13 +282,16 @@
 				50D432AD2B2989BA006664E4 /* FrameParser.mm */,
 				50D432B92B2989BA006664E4 /* G726.c */,
 				50D432B32B2989BA006664E4 /* G726Decoder.h */,
-				50D432AC2B2989BA006664E4 /* HWDecoder.h */,
-				50D432B52B2989BA006664E4 /* HWDecoder.mm */,
+				50D432AC2B2989BA006664E4 /* H264Decoder.h */,
+				50D432B52B2989BA006664E4 /* H264Decoder.mm */,
 				50D432AB2B2989BA006664E4 /* NSData+Hex.h */,
 				50D432B72B2989BA006664E4 /* NSData+Hex.m */,
 				50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */,
 				50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */,
 				50D432B62B2989BA006664E4 /* VideoDecoder.h */,
+				5056C8192B30262800CD37ED /* H265Decoder.h */,
+				5056C81A2B3028E300CD37ED /* H265Decoder.mm */,
+				5056C81C2B302A1500CD37ED /* HWDecoderDelegate.h */,
 			);
 			path = FrameManager;
 			sourceTree = "<group>";
@@ -479,33 +477,32 @@
 			files = (
 				50D433492B299F08006664E4 /* OvalSmallPrimaryButtonStyle.swift in Sources */,
 				50D432F32B2989BA006664E4 /* Shaders.metal in Sources */,
-				50323CE72B2B053E00EB07F6 /* H264Decoder.swift in Sources */,
 				50D433272B2996A4006664E4 /* CharmanderError.swift in Sources */,
 				50D432E72B2989BA006664E4 /* FisheyeMeshImpl.swift in Sources */,
 				50D433192B299659006664E4 /* ViewCellStatus.swift in Sources */,
-				50323CDF2B2B053E00EB07F6 /* CMSampleBuffer+Extension.swift in Sources */,
+				5056C8322B30301900CD37ED /* NalUnitParser.swift in Sources */,
 				50D432EA2B2989BA006664E4 /* fisheye_version.swift in Sources */,
 				50D432F02B2989BA006664E4 /* MetalRenderer.swift in Sources */,
 				50D433452B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift in Sources */,
 				50D433432B299F08006664E4 /* SheetMenuButtonStyle.swift in Sources */,
 				50D432EC2B2989BA006664E4 /* FisheyePTZController.swift in Sources */,
+				5056C8312B30301900CD37ED /* H264NalUnit.swift in Sources */,
 				50D4332A2B2996A4006664E4 /* CharmanderLogType.swift in Sources */,
-				50323CE62B2B053E00EB07F6 /* H265NalUnit.swift in Sources */,
 				50D4331A2B299659006664E4 /* StreamingViewAction.swift in Sources */,
 				50D432E42B2989BA006664E4 /* NSData+Hex.m in Sources */,
 				50D432E92B2989BA006664E4 /* FisheyeMesh.swift in Sources */,
 				50D432F62B2989BA006664E4 /* LCTextLayer.swift in Sources */,
+				5056C82D2B30301900CD37ED /* NalUnitProtocol.swift in Sources */,
 				50D433422B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift in Sources */,
+				5056C82E2B30301900CD37ED /* VideoPacket.swift in Sources */,
 				50D432E22B2989BA006664E4 /* FrameManager.mm in Sources */,
 				50D432EF2B2989BA006664E4 /* MetalTextureCache.swift in Sources */,
-				50323CE42B2B053E00EB07F6 /* UnsafePointer+Extension.swift in Sources */,
-				50323CE22B2B053E00EB07F6 /* H265Decoder.swift in Sources */,
 				50D4334C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift in Sources */,
-				50D432E32B2989BA006664E4 /* HWDecoder.mm in Sources */,
+				50D432E32B2989BA006664E4 /* H264Decoder.mm in Sources */,
 				50D433482B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift in Sources */,
 				50D4332C2B299C60006664E4 /* NavigationBarColor.swift in Sources */,
+				5056C8302B30301900CD37ED /* H265NalUnit.swift in Sources */,
 				50D432E12B2989BA006664E4 /* RemoteIOPlayer.mm in Sources */,
-				50323CE82B2B053E00EB07F6 /* VideoDecoder.swift in Sources */,
 				50D4331B2B299659006664E4 /* StreamingViewWrapper.swift in Sources */,
 				50D432DF2B2989BA006664E4 /* DataBrokerWrapper.mm in Sources */,
 				50D4334B2B299F08006664E4 /* NakedLargeCenterButtonStyle.swift in Sources */,
@@ -515,21 +512,21 @@
 				50D432FA2B2989BA006664E4 /* ProjectModel.swift in Sources */,
 				50D432E52B2989BA006664E4 /* G726.c in Sources */,
 				50D432EE2B2989BA006664E4 /* BeautyFistWrapper.swift in Sources */,
-				50323CE52B2B053E00EB07F6 /* H264NalUnit.swift in Sources */,
 				50D4333E2B299F08006664E4 /* IconNakedMediumSecondaryButtonStyle.swift in Sources */,
 				50D433472B299F08006664E4 /* OvalOpacityMediumPrimaryButtonStyle.swift in Sources */,
 				5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */,
 				50D432FB2B2989BA006664E4 /* Vector2D.swift in Sources */,
 				50D432DE2B2989BA006664E4 /* StreamingView.swift in Sources */,
+				5056C8292B30301900CD37ED /* CMSampleBuffer+Extension.swift in Sources */,
 				50D432F22B2989BA006664E4 /* MetalView.swift in Sources */,
-				50323CE02B2B053E00EB07F6 /* NalUnitProtocol.swift in Sources */,
-				50323CE12B2B053E00EB07F6 /* VideoPacket.swift in Sources */,
 				50D433442B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift in Sources */,
 				50D432FC2B2989BA006664E4 /* Point3D.swift in Sources */,
 				50D432E82B2989BA006664E4 /* FisheyePositionController.swift in Sources */,
 				50D4334D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift in Sources */,
 				50D4333F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift in Sources */,
+				5056C82A2B30301900CD37ED /* UnsafePointer+Extension.swift in Sources */,
 				50D4334A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift in Sources */,
+				5056C81B2B3028E300CD37ED /* H265Decoder.mm in Sources */,
 				50D432E02B2989BA006664E4 /* FrameParser.mm in Sources */,
 				5090A40B293DDED400AE5AFF /* testApp.swift in Sources */,
 				50D4330A2B298D19006664E4 /* extension.swift in Sources */,
@@ -540,7 +537,6 @@
 				50D432ED2B2989BA006664E4 /* FrameManagerWrapper.mm in Sources */,
 				50D432F82B2989BA006664E4 /* StreamingStatus+Extension.swift in Sources */,
 				50D432F12B2989BA006664E4 /* UIBezierPath+Arrow.swift in Sources */,
-				50323CE32B2B053E00EB07F6 /* NalUnitParser.swift in Sources */,
 				50D432F42B2989BA006664E4 /* GLViewportCtrWrapper.mm in Sources */,
 				50D432F52B2989BA006664E4 /* MetalBuffer.swift in Sources */,
 			);
@@ -699,6 +695,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -737,6 +734,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

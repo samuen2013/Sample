@@ -10,6 +10,8 @@
 #import "FrameManager/FrameParser.h"
 #import "FrameManager/VideoDecoder.h"
 #import "FrameManager/AudioDecoder.h"
+#import "FrameManager/H264Decoder.h"
+#import "FrameManager/H265Decoder.h"
 #import "NSData+Hex.h"
 #import "test-Swift.h"
 
@@ -24,7 +26,8 @@ typedef struct {
 @interface FrameManagerWrapper()
 
 @property (assign, nonatomic) FrameManager *frameManager;
-@property (strong, nonatomic) HWDecoder *h264VideoDecoder;
+@property (strong, nonatomic) H264Decoder *h264VideoDecoder;
+@property (strong, nonatomic) H265Decoder *h265VideoDecoder;
 @property (assign, nonatomic) VideoDecoder* videoSWDecoder;
 
 @property (strong, nonatomic) RemoteIOPlayer *audioRenderer;
@@ -150,8 +153,15 @@ typedef struct {
     }
     
     if (_h264VideoDecoder) {
+        _h264VideoDecoder.delegate = nil;
         [_h264VideoDecoder release];
         _h264VideoDecoder = nil;
+    }
+    
+    if (_h265VideoDecoder) {
+        _h265VideoDecoder.delegate = nil;
+        [_h265VideoDecoder release];
+        _h265VideoDecoder = nil;
     }
     
     if (_videoDecodeThread) {
@@ -265,12 +275,13 @@ typedef struct {
         _videoHeight = packetV3->tIfEx.dwHeight;
     }
     
-    if (_lastestVideoStreamType != mctH264) { // Support HW decode only for H.264
+    if (_lastestVideoStreamType != mctH264 && _lastestVideoStreamType != mctHEVC) { // Support HW decode only for H.264
         _supportHardwareDecode = false;
     }
     
     if (_supportHardwareDecode) {
-        if ([self hardwareDecode:packet] != S_OK) { // HW decode fail, fallback to SW decode
+        if ([self hardwareDecode:packet] != S_OK) {
+            NSLog(@"HW decode fail, switch to SW decode");
             _supportHardwareDecode = false;
             [self softwareDecode:packet];
         }
@@ -297,88 +308,26 @@ typedef struct {
 - (SCODE)hardwareDecode:(TMediaDataPacketInfo *)packet {
     [self sleepToWaitAudio:packet];
 
-    if (!_h264VideoDecoder) {
-        _h264VideoDecoder = [[HWDecoder alloc] init];
-        _h264VideoDecoder.delegate = self;
+    if (_lastestVideoStreamType == mctH264) {
+        if (!_h264VideoDecoder) {
+            _h264VideoDecoder = [[H264Decoder alloc] init];
+            _h264VideoDecoder.delegate = self;
+        }
+        
+        // Extract H.264 slices and decode with HWDecoder
+        auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
+        return [_h264VideoDecoder decodeFrame:frameData];
+    } else if (_lastestVideoStreamType == mctHEVC) {
+        if (!_h265VideoDecoder) {
+            _h265VideoDecoder = [[H265Decoder alloc] init];
+            _h265VideoDecoder.delegate = self;
+        }
+        
+        auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
+        return [_h265VideoDecoder decodeFrame:frameData];
     }
     
-    // Extract H.264 slices and decode with HWDecoder
-    auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
-    
-    @autoreleasepool {
-
-        NSString *dataHex = [frameData hexString];
-        NSString *NALPrefix = @"00000001";
-        NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
-        
-        NSRange spsRange = NSMakeRange(0, 0);
-        NSRange ppsRange = NSMakeRange(0, 0);
-        
-        if (subStrings.count >= 3)
-        {
-            for (NSString *subString in subStrings)
-            {
-                if (subString.length > 1)
-                {
-                    if ([subString characterAtIndex:1] == '7') // SPS
-                    {
-                        spsRange = [dataHex rangeOfString:subString];
-                    }
-                    else if ([subString characterAtIndex:1] == '8') // PPS
-                    {
-                        ppsRange = [dataHex rangeOfString:subString];
-                    }
-                }
-            }
-            
-            if (spsRange.location == NSNotFound ||
-                ppsRange.location == NSNotFound)
-            {
-                return S_FAIL;
-            }
-            
-            if (frameData.length < (spsRange.location / 2) + (spsRange.length / 2) ||
-                frameData.length < (ppsRange.location / 2) + (ppsRange.length / 2))
-            {
-                return S_FAIL;
-            }
-            
-            NSData *spsData = [frameData subdataWithRange:NSMakeRange(spsRange.location / 2, spsRange.length / 2)];
-            NSData *ppsData = [frameData subdataWithRange:NSMakeRange(ppsRange.location / 2, ppsRange.length / 2)];
-            
-            if ([_h264VideoDecoder createVideoFormatDescriptionForH264WithSPSData:spsData ppsData:ppsData] != noErr)
-            {
-                return S_FAIL;
-            }
-            
-            if ([_h264VideoDecoder createDecompressionSession] != noErr)
-            {
-                return S_FAIL;
-            }
-        }
-        
-        NSRange rawRange = [dataHex rangeOfString:[subStrings lastObject]]; // Not containing NAL Prefix "00000001"
-        
-        if (rawRange.location == NSNotFound)
-        {
-            return S_FAIL;
-        }
-        
-        NSRange rawWithNALPrefixRange = NSMakeRange(rawRange.location - NALPrefix.length, rawRange.length + NALPrefix.length); // Containing NAL Prefix "00000001"
-        
-        if (frameData.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2))
-        {
-            return S_FAIL;
-        }
-        
-        NSData *rawData = [frameData subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
-        
-        if ([_h264VideoDecoder decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr)
-        {
-            return S_FAIL;
-        }
-    }
-    return S_OK;
+    return S_FAIL;
 }
 
 - (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {
@@ -414,7 +363,8 @@ typedef struct {
         
         if (packet->dwStreamType != mctMP4V &&
             packet->dwStreamType != mctH264 &&
-            packet->dwStreamType != mctJPEG) {
+            packet->dwStreamType != mctJPEG &&
+            packet->dwStreamType != mctHEVC) {
             [_delegate didReceiveUnsupportedVideoCodec];
             return;
         }

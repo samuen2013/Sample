@@ -6,10 +6,11 @@
 //  Copyright (c) 2015 appteam. All rights reserved.
 //
 
-#import "HWDecoder.h"
-#import "FrameManager.h"
+#import "H264Decoder.h"
+#import "NSData+Hex.h"
+#import "test-Swift.h"
 
-@interface HWDecoder ()
+@interface H264Decoder ()
 {
     CMVideoFormatDescriptionRef _videoFormatDescr;
     VTDecompressionSessionRef _session;
@@ -17,13 +18,12 @@
 
 @property (strong, nonatomic) NSData *spsData;
 @property (strong, nonatomic) NSData *ppsData;
-@property (nonatomic, strong) dispatch_queue_t callbackQueue;
 
 @end
 
-@implementation HWDecoder
+@implementation H264Decoder
 
-void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefCon,
+void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefCon,
                                       void * CM_NULLABLE sourceFrameRefCon,
                                       OSStatus status,
                                       VTDecodeInfoFlags infoFlags,
@@ -35,7 +35,7 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
         return;
     }
 
-    HWDecoder *decoder = (__bridge HWDecoder *)(decompressionOutputRefCon);
+    H264Decoder *decoder = (__bridge H264Decoder *)(decompressionOutputRefCon);
     [decoder.delegate didDecodeWithImageBuffer:imageBuffer];
 }
 
@@ -49,19 +49,12 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
         
         self.spsData = nil;
         self.ppsData = nil;
-        
-        _callbackQueue = dispatch_queue_create("h264 hard decode callback queue", DISPATCH_QUEUE_SERIAL);
     }
     
     return self;
 }
 
 - (void)dealloc
-{
-    [self internalRelease];
-}
-
-- (void)internalRelease
 {
     [self releaseDecompressionSession];
     [self releaseVideoFormatDescription];
@@ -92,7 +85,75 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
     }
 }
 
-- (OSStatus)createVideoFormatDescriptionForH264WithSPSData:(NSData *)spsData ppsData:(NSData *)ppsData
+- (SCODE)decodeFrame:(NSData *)frameData {
+    auto packet = [[VideoPacket alloc] init:frameData type:EncodeTypeH264];
+    auto units = [NalUnitParser unitParserWithPacket:packet];
+    
+    NSData *spsData;
+    NSData *ppsData;
+    for (id<NalUnitProtocol> unit in units) {
+        switch(unit.type) {
+            case NalUnitTypeOther:
+                break;
+            case NalUnitTypeVps:
+                break;
+            case NalUnitTypeSps:
+                spsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
+                break;
+            case NalUnitTypePps:
+                ppsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
+                break;
+            case NalUnitTypeIdr:
+                if ([self initDecoder:spsData ppsData:ppsData] != noErr) {
+                    return S_FAIL;
+                }
+                if ([self createDecompressionSession] != noErr) {
+                    return S_FAIL;
+                }
+                if ([self decodeData:frameData] != S_OK) {
+                    return S_FAIL;
+                }
+                break;
+            case NalUnitTypePFrame:
+                if ([self decodeData:frameData] != S_OK) {
+                    return S_FAIL;
+                }
+                break;
+        }
+    }
+
+    return S_OK;
+}
+
+- (SCODE)decodeData:(NSData *)data {
+    @autoreleasepool {
+        NSString *dataHex = [data hexString];
+        NSString *NALPrefix = @"00000001";
+        NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
+        
+        NSRange rawRange = [dataHex rangeOfString:[subStrings lastObject]]; // Not containing NAL Prefix "00000001"
+        if (rawRange.location == NSNotFound) {
+            return S_FAIL;
+        }
+        
+        NSRange rawWithNALPrefixRange = NSMakeRange(rawRange.location - NALPrefix.length, rawRange.length + NALPrefix.length); // Containing NAL Prefix "00000001"
+        
+        if (data.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2)) {
+            return S_FAIL;
+        }
+        
+        NSData *rawData = [data subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
+        
+        if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr)
+        {
+            return S_FAIL;
+        }
+    }
+    
+    return S_OK;
+}
+
+- (OSStatus)initDecoder:(NSData *)spsData ppsData:(NSData *)ppsData
 {
     OSStatus status = noErr;
     
@@ -126,7 +187,7 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
     {
         // 2. create VTDecompressionSession
         VTDecompressionOutputCallbackRecord callback;
-        callback.decompressionOutputCallback = videoDecompressionOutputCallback;
+        callback.decompressionOutputCallback = h264VideoDecompressionOutputCallback;
         callback.decompressionOutputRefCon = (__bridge void * _Nullable)(self);
         NSDictionary *destinationImageBufferAttributes =[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],(id)kCVPixelBufferMetalCompatibilityKey,[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],(id)kCVPixelBufferPixelFormatTypeKey,nil];
         status = VTDecompressionSessionCreate(kCFAllocatorDefault, _videoFormatDescr, NULL, (__bridge CFDictionaryRef)destinationImageBufferAttributes, &callback, &_session);
@@ -136,8 +197,7 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
     return status;
 }
 
-- (OSStatus)decodeWithBytes:(Byte *)data length:(int)dataLength
-{
+- (OSStatus)decodeWithBytes:(Byte *)data length:(int)dataLength {
     OSStatus status = noErr;
     
     int startCodeIndex = 0;
@@ -199,64 +259,5 @@ void videoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutputRefC
     
     return status;
 }
-
-#pragma mark - VideoToolBox Decompress Frame CallBack
-/*
- This callback gets called everytime the decompresssion session decodes a frame
- */
-/*void didDecompress( void *decompressionOutputRefCon, void *sourceFrameRefCon, OSStatus status, VTDecodeInfoFlags infoFlags, CVImageBufferRef imageBuffer, CMTime presentationTimeStamp, CMTime presentationDuration )
-{
-    if (status != noErr || !imageBuffer)
-    {
-        // error -8969 codecBadDataErr
-        // -12909 The operation couldn’t be completed. (OSStatus error -12909.)
-        //NSLog(@"Error decompresssing frame at time: %.3f error: %d infoFlags: %u", (float)presentationTimeStamp.value/presentationTimeStamp.timescale, (int)status, (unsigned int)infoFlags);
-        return;
-    }
-    
-    //NSLog(@"Got frame data.\n");
-    //NSLog(@"Success decompresssing frame at time: %.3f error: %d infoFlags: %u", (float)presentationTimeStamp.value/presentationTimeStamp.timescale, (int)status, (unsigned int)infoFlags);
- 
-    if (decoder.delegate != nil)
-    {
-        [decoder.delegate didDecodeWithImageBuffer:imageBuffer];
-    }
-}*/
-
-NSString * const naluTypesStrings[] =
-{
-    @"Unspecified (non-VCL)",
-    @"Coded slice of a non-IDR picture (VCL)",
-    @"Coded slice data partition A (VCL)",
-    @"Coded slice data partition B (VCL)",
-    @"Coded slice data partition C (VCL)",
-    @"Coded slice of an IDR picture (VCL)",
-    @"Supplemental enhancement information (SEI) (non-VCL)",
-    @"Sequence parameter set (non-VCL)",
-    @"Picture parameter set (non-VCL)",
-    @"Access unit delimiter (non-VCL)",
-    @"End of sequence (non-VCL)",
-    @"End of stream (non-VCL)",
-    @"Filler data (non-VCL)",
-    @"Sequence parameter set extension (non-VCL)",
-    @"Prefix NAL unit (non-VCL)",
-    @"Subset sequence parameter set (non-VCL)",
-    @"Reserved (non-VCL)",
-    @"Reserved (non-VCL)",
-    @"Reserved (non-VCL)",
-    @"Coded slice of an auxiliary coded picture without partitioning (non-VCL)",
-    @"Coded slice extension (non-VCL)",
-    @"Coded slice extension for depth view components (non-VCL)",
-    @"Reserved (non-VCL)",
-    @"Reserved (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-    @"Unspecified (non-VCL)",
-};
 
 @end

@@ -1,6 +1,7 @@
 import UIKit
 
-public enum NalUnitType {
+@objc
+public enum NalUnitType: Int {
     case other
     case vps
     case sps
@@ -9,6 +10,7 @@ public enum NalUnitType {
     case pFrame
 }
 
+@objc
 public protocol NalUnitProtocol: AnyObject {
     
     var type: NalUnitType { get }
