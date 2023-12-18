@@ -86,42 +86,48 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
 }
 
 - (SCODE)decodeFrame:(NSData *)frameData {
-    auto packet = [[VideoPacket alloc] init:frameData type:EncodeTypeH264];
-    auto units = [NalUnitParser unitParserWithPacket:packet];
+    NSString *dataHex = [frameData hexString];
+    NSString *NALPrefix = @"00000001";
+    NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
     
-    NSData *spsData;
-    NSData *ppsData;
-    for (id<NalUnitProtocol> unit in units) {
-        switch(unit.type) {
-            case NalUnitTypeOther:
-                break;
-            case NalUnitTypeVps:
-                break;
-            case NalUnitTypeSps:
-                spsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
-                break;
-            case NalUnitTypePps:
-                ppsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
-                break;
-            case NalUnitTypeIdr:
-                if ([self initDecoder:spsData ppsData:ppsData] != noErr) {
+    NSRange spsRange = NSMakeRange(0, 0);
+    NSRange ppsRange = NSMakeRange(0, 0);
+    
+    for (NSString *subString in subStrings) {
+        if (subString.length > 1) {
+            if ([subString characterAtIndex:1] == '7') { // SPS
+                spsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:1] == '8') { // PPS
+                ppsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:1] == '5') { // IDR
+                if (spsRange.location == NSNotFound || ppsRange.location == NSNotFound) {
                     return S_FAIL;
                 }
-                if ([self createDecompressionSession] != noErr) {
+                if (frameData.length < (spsRange.location / 2) + (spsRange.length / 2) ||
+                    frameData.length < (ppsRange.location / 2) + (ppsRange.length / 2)) {
+                    return S_FAIL;
+                }
+                NSData *spsData = [frameData subdataWithRange:NSMakeRange(spsRange.location / 2, spsRange.length / 2)];
+                NSData *ppsData = [frameData subdataWithRange:NSMakeRange(ppsRange.location / 2, ppsRange.length / 2)];
+                if ([self initDecoder:spsData ppsData:ppsData] != noErr)
+                {
+                    return S_FAIL;
+                }
+                if ([self createDecompressionSession] != noErr)
+                {
                     return S_FAIL;
                 }
                 if ([self decodeData:frameData] != S_OK) {
                     return S_FAIL;
                 }
-                break;
-            case NalUnitTypePFrame:
+            } else {
                 if ([self decodeData:frameData] != S_OK) {
                     return S_FAIL;
                 }
-                break;
+            }
         }
     }
-
+    
     return S_OK;
 }
 
@@ -234,7 +240,7 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
             NSString *str = [NSString stringWithFormat:@" %.2X",sourceBytes[i]];
             tmp3 = [tmp3 stringByAppendingString:str];
         }
-       
+        
         //NSLog(@"size = %i , 16Byte = %@",reomveHeaderSize,tmp3);
         
         // 6. create a CMSampleBuffer.

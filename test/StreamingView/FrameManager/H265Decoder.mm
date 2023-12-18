@@ -86,41 +86,50 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
 }
 
 - (SCODE)decodeFrame:(NSData *)frameData {
-    auto packet = [[VideoPacket alloc] init:frameData type:EncodeTypeH265];
-    auto units = [NalUnitParser unitParserWithPacket:packet];
+    NSString *dataHex = [frameData hexString];
+    NSString *NALPrefix = @"00000001";
+    NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
     
-    NSData *vpsData;
-    NSData *spsData;
-    NSData *ppsData;
-    for (id<NalUnitProtocol> unit in units) {
-        switch(unit.type) {
-            case NalUnitTypeOther:
-                break;
-            case NalUnitTypeVps:
-                vpsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
-                break;
-            case NalUnitTypeSps:
-                spsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
-                break;
-            case NalUnitTypePps:
-                ppsData = [[NSData alloc] initWithBytes:unit.buffer length:unit.bufferSize];
-                break;
-            case NalUnitTypeIdr:
+    NSRange vpsRange = NSMakeRange(0, 0);
+    NSRange spsRange = NSMakeRange(0, 0);
+    NSRange ppsRange = NSMakeRange(0, 0);
+    
+    for (NSString *subString in subStrings) {
+        if (subString.length > 2) { // & 0x7E, >> 1
+            if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '0') { // VPS, 0x20
+                vpsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '2') { // SPS, 0x21
+                spsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '4') { // PPS, 0x22
+                ppsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '2' && [subString characterAtIndex:1] == '6') { // IDR, 0x13
+                if (vpsRange.location == NSNotFound || spsRange.location == NSNotFound || ppsRange.location == NSNotFound) {
+                    return S_FAIL;
+                }
+                if (frameData.length < (vpsRange.location / 2) + (vpsRange.length / 2) ||
+                    frameData.length < (spsRange.location / 2) + (spsRange.length / 2) ||
+                    frameData.length < (ppsRange.location / 2) + (ppsRange.length / 2)) {
+                    return S_FAIL;
+                }
+                NSData *vpsData = [frameData subdataWithRange:NSMakeRange(vpsRange.location / 2, vpsRange.length / 2)];
+                NSData *spsData = [frameData subdataWithRange:NSMakeRange(spsRange.location / 2, spsRange.length / 2)];
+                NSData *ppsData = [frameData subdataWithRange:NSMakeRange(ppsRange.location / 2, ppsRange.length / 2)];
                 if ([self initDecoder:vpsData spsData:spsData ppsData:ppsData] != noErr) {
                     return S_FAIL;
                 }
                 if ([self createDecompressionSession] != noErr) {
                     return S_FAIL;
                 }
-                if ([self decodeData:frameData] != S_OK) {
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
                     return S_FAIL;
                 }
-                break;
-            case NalUnitTypePFrame:
-                if ([self decodeData:frameData] != S_OK) {
+            } else if ([subString characterAtIndex:0] == '0' && [subString characterAtIndex:1] == '2') { // p-frame, 0x01
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
                     return S_FAIL;
                 }
-                break;
+            } else {
+                NSLog(@"unhandle substring: %@", subString);
+            }
         }
     }
     
@@ -169,24 +178,17 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     return status;
 }
 
-- (SCODE)decodeData:(NSData *)data {
+- (SCODE)decodeData:(NSData *)data range:(NSRange)range {
     @autoreleasepool {
-        NSString *dataHex = [data hexString];
         NSString *NALPrefix = @"00000001";
-        NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
-        
-        NSRange rawRange = [dataHex rangeOfString:[subStrings lastObject]]; // Not containing NAL Prefix "00000001"
-        if (rawRange.location == NSNotFound) {
-            return S_FAIL;
-        }
-        
-        NSRange rawWithNALPrefixRange = NSMakeRange(rawRange.location - NALPrefix.length, rawRange.length + NALPrefix.length); // Containing NAL Prefix "00000001"
-        
+        NSRange rawWithNALPrefixRange = NSMakeRange(range.location - NALPrefix.length, range.length + NALPrefix.length); // Containing NAL Prefix "00000001"
         if (data.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2)) {
             return S_FAIL;
         }
         
         NSData *rawData = [data subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
+        NSString *dataHex = [rawData hexString];
+        NSLog(@"raw data: %@", dataHex);
         
         if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr) {
             return S_FAIL;
@@ -199,64 +201,48 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
 - (OSStatus)decodeWithBytes:(Byte *)data length:(int)dataLength {
     OSStatus status = noErr;
     
-    int startCodeIndex = 0;
-    for (int i = 0; i < 5; i++)
-    {
-        if (data[i] == 0x01)
-        {
-            startCodeIndex = i;
-            break;
-        }
+    CMBlockBufferRef blockBuffer = NULL;
+    status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault, data, dataLength, kCFAllocatorNull, nil, 0, dataLength, 0, &blockBuffer);
+    if (status != kCMBlockBufferNoErr) {
+        NSLog(@"CMBlockBufferCreateWithMemoryBlock failed: %d", (int)status);
+        return status;
     }
     
-    int nalu_type = ((uint8_t)data[startCodeIndex + 1] & 0x1F);
-    //NSLog(@"NALU with Type \"%@\" received.", naluTypesStrings[nalu_type]);
-    
-    if (nalu_type == 1 || nalu_type == 5)
-    {
-        // 4. get NALUnit payload into a CMBlockBuffer,
-        CMBlockBufferRef videoBlock = NULL;
-        status = CMBlockBufferCreateWithMemoryBlock(NULL, data, dataLength, kCFAllocatorNull, NULL, 0, dataLength, 0, &videoBlock);
-        (void)status;
-        //NSLog(@"BlockBufferCreation: %@", (status == kCMBlockBufferNoErr) ? @"successfully." : @"failed.");
-        
-        // 5.  making sure to replace the separator code with a 4 byte length code (the length of the NalUnit including the unit code)
-        int reomveHeaderSize = dataLength - 4;
-        const uint8_t sourceBytes[] = {(uint8_t)(reomveHeaderSize >> 24), (uint8_t)(reomveHeaderSize >> 16), (uint8_t)(reomveHeaderSize >> 8), (uint8_t)reomveHeaderSize};
-        status = CMBlockBufferReplaceDataBytes(sourceBytes, videoBlock, 0, 4);
-        (void)status;
-        //NSLog(@"BlockBufferReplace: %@", (status == kCMBlockBufferNoErr) ? @"successfully." : @"failed.");
-        
-        NSString *tmp3 = @"";
-        for (int i = 0; i < sizeof(sourceBytes); i++)
-        {
-            NSString *str = [NSString stringWithFormat:@" %.2X",sourceBytes[i]];
-            tmp3 = [tmp3 stringByAppendingString:str];
-        }
-       
-        //NSLog(@"size = %i , 16Byte = %@",reomveHeaderSize,tmp3);
-        
-        // 6. create a CMSampleBuffer.
-        CMSampleBufferRef sbRef = NULL;
-        const size_t sampleSizeArray[] = {static_cast<size_t>(dataLength)};
-        status = CMSampleBufferCreate(kCFAllocatorDefault, videoBlock, true, NULL, NULL, _videoFormatDescr, 1, 0, NULL, 1, sampleSizeArray, &sbRef);
-        (void)status;
-        //NSLog(@"SampleBufferCreate: %@", (status == noErr) ? @"successfully." : @"failed.");
-        
-        // 7. use VTDecompressionSessionDecodeFrame
-        VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
-        VTDecodeInfoFlags flagOut;
-        status = VTDecompressionSessionDecodeFrame(_session, sbRef, flags, NULL, &flagOut);
-        //NSLog(@"VTDecompressionSessionDecodeFrame: %@", (status == noErr) ? @"successfully." : @"failed.");
-        
-        CFRelease(sbRef);
-        sbRef = NULL;
-        
-        CFRelease(videoBlock);
-        videoBlock = NULL;
+    CMSampleBufferRef sampleBuffer = NULL;
+    const size_t sampleSizeArray[] = {static_cast<size_t>(dataLength)};
+    status = CMSampleBufferCreateReady(kCFAllocatorDefault, blockBuffer, _videoFormatDescr, 1, 0, nil, 1, sampleSizeArray, &sampleBuffer);
+    if (status != kCMBlockBufferNoErr) {
+        NSLog(@"CMSampleBufferCreateReady failed: %d", (int)status);
+        return status;
     }
     
-    return status;
+    VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+    VTDecodeInfoFlags flagOut;
+    status = VTDecompressionSessionDecodeFrame(_session, sampleBuffer, flags, nil, &flagOut);
+    if (status != kCMBlockBufferNoErr) {
+        NSLog(@"VTDecompressionSessionDecodeFrame failed: %d", (int)status);
+        return status;
+    }
+    
+    return noErr;
 }
 
 @end
+
+
+//open func decodeVideoUnit(_ unit: NalUnitProtocol) {
+
+//    if let blockBuff = blockBuffer {
+//        if let sampleBuff = sampleBuffer, let session = session {
+//            
+//            var flagOut: VTDecodeInfoFlags = []
+//            status = VTDecompressionSessionDecodeFrame(session, sampleBuffer: sampleBuff, flags: flagIn, frameRefcon: nil, infoFlagsOut: &flagOut)
+//            if status != noErr {
+//                delegate.decodeOutput(error: .decompressionSessionDecodeFrame(status))
+//            }
+//            
+//        }
+//        
+//    }
+//    
+//}
