@@ -117,11 +117,11 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
                 {
                     return S_FAIL;
                 }
-                if ([self decodeData:frameData] != S_OK) {
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
                     return S_FAIL;
                 }
             } else {
-                if ([self decodeData:frameData] != S_OK) {
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
                     return S_FAIL;
                 }
             }
@@ -131,27 +131,17 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     return S_OK;
 }
 
-- (SCODE)decodeData:(NSData *)data {
+- (SCODE)decodeData:(NSData *)data range:(NSRange)range {
     @autoreleasepool {
-        NSString *dataHex = [data hexString];
         NSString *NALPrefix = @"00000001";
-        NSArray *subStrings = [dataHex componentsSeparatedByString:NALPrefix];
-        
-        NSRange rawRange = [dataHex rangeOfString:[subStrings lastObject]]; // Not containing NAL Prefix "00000001"
-        if (rawRange.location == NSNotFound) {
-            return S_FAIL;
-        }
-        
-        NSRange rawWithNALPrefixRange = NSMakeRange(rawRange.location - NALPrefix.length, rawRange.length + NALPrefix.length); // Containing NAL Prefix "00000001"
-        
+        NSRange rawWithNALPrefixRange = NSMakeRange(range.location - NALPrefix.length, range.length + NALPrefix.length); // Containing NAL Prefix "00000001"
         if (data.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2)) {
             return S_FAIL;
         }
         
         NSData *rawData = [data subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
-        
-        if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr)
-        {
+        NSString *dataHex = [rawData hexString];
+        if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr) {
             return S_FAIL;
         }
     }
