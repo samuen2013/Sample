@@ -88,39 +88,44 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     NSRange spsRange = NSMakeRange(0, 0);
     NSRange ppsRange = NSMakeRange(0, 0);
     
-    if (subStrings.count >= 5) {
-        for (NSString *subString in subStrings) {
-            if (subString.length > 2) { // & 0x7E, >> 1
-                if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '0') { // VPS, 0x20
-                    vpsRange = [dataHex rangeOfString:subString];
-                } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '2') { // SPS, 0x21
-                    spsRange = [dataHex rangeOfString:subString];
-                } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '4') { // PPS, 0x22
-                    ppsRange = [dataHex rangeOfString:subString];
-                } else if ([subString characterAtIndex:0] == '2' && [subString characterAtIndex:1] == '6') { // IDR, 0x13
-                    if (vpsRange.location == NSNotFound || spsRange.location == NSNotFound || ppsRange.location == NSNotFound) {
-                        return S_FAIL;
-                    }
-                    if (frameData.length < (vpsRange.location / 2) + (vpsRange.length / 2) ||
-                        frameData.length < (spsRange.location / 2) + (spsRange.length / 2) ||
-                        frameData.length < (ppsRange.location / 2) + (ppsRange.length / 2)) {
-                        return S_FAIL;
-                    }
-                    NSData *vpsData = [frameData subdataWithRange:NSMakeRange(vpsRange.location / 2, vpsRange.length / 2)];
-                    NSData *spsData = [frameData subdataWithRange:NSMakeRange(spsRange.location / 2, spsRange.length / 2)];
-                    NSData *ppsData = [frameData subdataWithRange:NSMakeRange(ppsRange.location / 2, ppsRange.length / 2)];
-                    if ([self initDecoder:vpsData spsData:spsData ppsData:ppsData] != noErr) {
-                        return S_FAIL;
-                    }
-                    if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
-                        return S_FAIL;
-                    }
-                } else if ([subString characterAtIndex:0] == '0' && [subString characterAtIndex:1] == '2') { // p-frame, 0x01
-                    NSLog(@"get p-frame");
-                    if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
-                        return S_FAIL;
-                    }
+    NSLog(@"subStrings count: %lu", (unsigned long)subStrings.count);
+    for (NSString *subString in subStrings) {
+        if (subString.length > 2) { // & 0x7E, >> 1
+            if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '0') { // VPS, 0x20
+                NSLog(@"get vps");
+                vpsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '2') { // SPS, 0x21
+                NSLog(@"get sps");
+                spsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '4') { // PPS, 0x22
+                NSLog(@"get pps");
+                ppsRange = [dataHex rangeOfString:subString];
+            } else if ([subString characterAtIndex:0] == '2' && [subString characterAtIndex:1] == '6') { // IDR, 0x13
+                NSLog(@"get IDR");
+                if (vpsRange.location == NSNotFound || spsRange.location == NSNotFound || ppsRange.location == NSNotFound) {
+                    return S_FAIL;
                 }
+                if (frameData.length < (vpsRange.location / 2) + (vpsRange.length / 2) ||
+                    frameData.length < (spsRange.location / 2) + (spsRange.length / 2) ||
+                    frameData.length < (ppsRange.location / 2) + (ppsRange.length / 2)) {
+                    return S_FAIL;
+                }
+                NSData *vpsData = [frameData subdataWithRange:NSMakeRange(vpsRange.location / 2, vpsRange.length / 2)];
+                NSData *spsData = [frameData subdataWithRange:NSMakeRange(spsRange.location / 2, spsRange.length / 2)];
+                NSData *ppsData = [frameData subdataWithRange:NSMakeRange(ppsRange.location / 2, ppsRange.length / 2)];
+                if ([self initDecoder:vpsData spsData:spsData ppsData:ppsData] != noErr) {
+                    return S_FAIL;
+                }
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
+                    return S_FAIL;
+                }
+            } else if ([subString characterAtIndex:0] == '0' && [subString characterAtIndex:1] == '2') { // p-frame, 0x01
+                NSLog(@"get p-frame");
+                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
+                    return S_FAIL;
+                }
+            } else {
+                NSLog(@"unhandle %@", subString);
             }
         }
     }
@@ -152,8 +157,8 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
                 callback.decompressionOutputRefCon = (__bridge void * _Nullable)(self);
                 
                 NSDictionary *attributes = @{
-                    (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
-                    (__bridge NSString *)kCVPixelBufferMetalCompatibilityKey: @(true)
+                    (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
+                    (id)kCVPixelBufferOpenGLCompatibilityKey: [NSNumber numberWithBool:true]
                 };
                 status = VTDecompressionSessionCreate(kCFAllocatorDefault, _videoFormatDescr, NULL, (__bridge CFDictionaryRef)attributes, &callback, &_session);
                 
