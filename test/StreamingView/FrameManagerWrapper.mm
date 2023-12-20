@@ -144,6 +144,7 @@ typedef struct {
 - (void)releaseVideoRelatedResource {
     _firstPacketTS = 0;
     _firstDecodeTS = 0;
+    _supportHardwareDecode = true;
     
     _frameManager->releaseVideoRelated();
     
@@ -274,10 +275,8 @@ typedef struct {
         _videoWidth = packetV3->tIfEx.dwWidth;
         _videoHeight = packetV3->tIfEx.dwHeight;
     }
-    
-    if (_lastestVideoStreamType != mctH264 && _lastestVideoStreamType != mctHEVC) { // Support HW decode only for H.264
-        _supportHardwareDecode = false;
-    }
+
+    [self sleepToWaitAudio:packet];
     
     if (_supportHardwareDecode) {
         if ([self hardwareDecode:packet] != S_OK) {
@@ -306,8 +305,6 @@ typedef struct {
 }
 
 - (SCODE)hardwareDecode:(TMediaDataPacketInfo *)packet {
-    [self sleepToWaitAudio:packet];
-
     if (_lastestVideoStreamType == mctH264) {
         if (!_h264VideoDecoder) {
             _h264VideoDecoder = [[H264Decoder alloc] init];
@@ -325,14 +322,15 @@ typedef struct {
         
         auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
         return [_h265VideoDecoder decodeFrame:frameData];
+    } else {
+        NSLog(@"unsupport codec: %u", _lastestVideoStreamType);
+        return S_FAIL;
     }
     
     return S_FAIL;
 }
 
 - (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {
-    [self sleepToWaitAudio:packet];
-
     if (!_videoSWDecoder) {
         _videoSWDecoder = new VideoDecoder(packet->dwStreamType);
     }

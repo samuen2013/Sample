@@ -56,14 +56,52 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
 
 - (void)dealloc
 {
-    [self releaseDecompressionSession];
-    [self releaseVideoFormatDescription];
+    [self deinitDecoder];
 }
 
-- (void)releaseDecompressionSession
+- (OSStatus)initDecoder:(NSData *)spsData ppsData:(NSData *)ppsData
 {
-    if (_session)
+    OSStatus status = noErr;
+    
+    if (![_spsData isEqualToData:spsData] || ![_ppsData isEqualToData:ppsData]) // Only setup when format has changed
     {
+        [self deinitDecoder];
+        
+        if (spsData && ppsData)
+        {
+            self.spsData = spsData;
+            self.ppsData = ppsData;
+            
+            // 1. create  CMFormatDescription
+            const uint8_t* const parameterSetPointers[2] = { (const uint8_t*)[spsData bytes], (const uint8_t*)[ppsData bytes] };
+            const size_t parameterSetSizes[2] = { [spsData length], [ppsData length] };
+            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2, parameterSetPointers, parameterSetSizes, 4, &_videoFormatDescr);
+            NSLog(@"Found all data for CMVideoFormatDescription. Creation: %@.", (status == noErr) ? @"successfully." : @"failed.");
+            
+            if (!_session) {
+                auto needResetSession = !VTDecompressionSessionCanAcceptFormatDescription(_session, _videoFormatDescr);
+                if (needResetSession) {
+                    [self deinitDecoder];
+                } else {
+                    return noErr;
+                }
+                
+                VTDecompressionOutputCallbackRecord callback;
+                callback.decompressionOutputCallback = h264VideoDecompressionOutputCallback;
+                callback.decompressionOutputRefCon = (__bridge void * _Nullable)(self);
+                NSDictionary *destinationImageBufferAttributes =[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],(id)kCVPixelBufferMetalCompatibilityKey,[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],(id)kCVPixelBufferPixelFormatTypeKey,nil];
+                status = VTDecompressionSessionCreate(kCFAllocatorDefault, _videoFormatDescr, NULL, (__bridge CFDictionaryRef)destinationImageBufferAttributes, &callback, &_session);
+                NSLog(@"Creating Video Decompression Session: %@.", (status == noErr) ? @"successfully." : @"failed.");
+            }
+        }
+    }
+    
+    return status;
+}
+
+- (void)deinitDecoder
+{
+    if (_session) {
         // Flush in-process frames.
         VTDecompressionSessionFinishDelayedFrames(_session);
         // Block until our callback has been called with the last frame.
@@ -73,15 +111,6 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
         
         CFRelease(_session);
         _session = NULL;
-    }
-}
-
-- (void)releaseVideoFormatDescription
-{
-    if (_videoFormatDescr)
-    {
-        CFRelease(_videoFormatDescr);
-        _videoFormatDescr = NULL;
     }
 }
 
@@ -113,10 +142,6 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
                 {
                     return S_FAIL;
                 }
-                if ([self createDecompressionSession] != noErr)
-                {
-                    return S_FAIL;
-                }
                 if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
                     return S_FAIL;
                 }
@@ -131,16 +156,15 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     return S_OK;
 }
 
-- (SCODE)decodeData:(NSData *)data range:(NSRange)range {
+- (SCODE)decodeData:(NSData *)frameData range:(NSRange)range {
     @autoreleasepool {
         NSString *NALPrefix = @"00000001";
         NSRange rawWithNALPrefixRange = NSMakeRange(range.location - NALPrefix.length, range.length + NALPrefix.length); // Containing NAL Prefix "00000001"
-        if (data.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2)) {
+        if (frameData.length < (rawWithNALPrefixRange.location / 2) + (rawWithNALPrefixRange.length / 2)) {
             return S_FAIL;
         }
         
-        NSData *rawData = [data subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
-        NSString *dataHex = [rawData hexString];
+        NSData *rawData = [frameData subdataWithRange:NSMakeRange(rawWithNALPrefixRange.location / 2, rawWithNALPrefixRange.length / 2)];
         if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr) {
             return S_FAIL;
         }
@@ -149,111 +173,56 @@ void h264VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     return S_OK;
 }
 
-- (OSStatus)initDecoder:(NSData *)spsData ppsData:(NSData *)ppsData
-{
-    OSStatus status = noErr;
-    
-    if (![_spsData isEqualToData:spsData] || ![_ppsData isEqualToData:ppsData]) // Only setup when format has changed
-    {
-        if (spsData && ppsData)
-        {
-            self.spsData = spsData;
-            self.ppsData = ppsData;
-            
-            // Release previous resource
-            [self releaseDecompressionSession];
-            [self releaseVideoFormatDescription];
-            
-            // 1. create  CMFormatDescription
-            const uint8_t* const parameterSetPointers[2] = { (const uint8_t*)[spsData bytes], (const uint8_t*)[ppsData bytes] };
-            const size_t parameterSetSizes[2] = { [spsData length], [ppsData length] };
-            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2, parameterSetPointers, parameterSetSizes, 4, &_videoFormatDescr);
-            NSLog(@"Found all data for CMVideoFormatDescription. Creation: %@.", (status == noErr) ? @"successfully." : @"failed.");
-        }
-    }
-    
-    return status;
-}
-
-- (OSStatus)createDecompressionSession
-{
-    OSStatus status = noErr;
-    
-    if (!_session)
-    {
-        // 2. create VTDecompressionSession
-        VTDecompressionOutputCallbackRecord callback;
-        callback.decompressionOutputCallback = h264VideoDecompressionOutputCallback;
-        callback.decompressionOutputRefCon = (__bridge void * _Nullable)(self);
-        NSDictionary *destinationImageBufferAttributes =[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],(id)kCVPixelBufferMetalCompatibilityKey,[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],(id)kCVPixelBufferPixelFormatTypeKey,nil];
-        status = VTDecompressionSessionCreate(kCFAllocatorDefault, _videoFormatDescr, NULL, (__bridge CFDictionaryRef)destinationImageBufferAttributes, &callback, &_session);
-        NSLog(@"Creating Video Decompression Session: %@.", (status == noErr) ? @"successfully." : @"failed.");
-    }
-    
-    return status;
-}
-
 - (OSStatus)decodeWithBytes:(Byte *)data length:(int)dataLength {
-    OSStatus status = noErr;
-    
-    int startCodeIndex = 0;
-    for (int i = 0; i < 5; i++)
-    {
-        if (data[i] == 0x01)
-        {
-            startCodeIndex = i;
-            break;
-        }
+    CMBlockBufferRef videoBlock = NULL;
+    auto status = CMBlockBufferCreateWithMemoryBlock(NULL, data, dataLength, kCFAllocatorNull, NULL, 0, dataLength, 0, &videoBlock);
+    if (status != noErr) {
+        NSLog(@"CMBlockBufferCreateWithMemoryBlock failed: %d", (int)status);
+        return status;
     }
-    
-    int nalu_type = ((uint8_t)data[startCodeIndex + 1] & 0x1F);
-    //NSLog(@"NALU with Type \"%@\" received.", naluTypesStrings[nalu_type]);
-    
-    if (nalu_type == 1 || nalu_type == 5)
-    {
-        // 4. get NALUnit payload into a CMBlockBuffer,
-        CMBlockBufferRef videoBlock = NULL;
-        status = CMBlockBufferCreateWithMemoryBlock(NULL, data, dataLength, kCFAllocatorNull, NULL, 0, dataLength, 0, &videoBlock);
-        (void)status;
-        //NSLog(@"BlockBufferCreation: %@", (status == kCMBlockBufferNoErr) ? @"successfully." : @"failed.");
-        
-        // 5.  making sure to replace the separator code with a 4 byte length code (the length of the NalUnit including the unit code)
-        int reomveHeaderSize = dataLength - 4;
-        const uint8_t sourceBytes[] = {(uint8_t)(reomveHeaderSize >> 24), (uint8_t)(reomveHeaderSize >> 16), (uint8_t)(reomveHeaderSize >> 8), (uint8_t)reomveHeaderSize};
-        status = CMBlockBufferReplaceDataBytes(sourceBytes, videoBlock, 0, 4);
-        (void)status;
-        //NSLog(@"BlockBufferReplace: %@", (status == kCMBlockBufferNoErr) ? @"successfully." : @"failed.");
-        
-        NSString *tmp3 = @"";
-        for (int i = 0; i < sizeof(sourceBytes); i++)
-        {
-            NSString *str = [NSString stringWithFormat:@" %.2X",sourceBytes[i]];
-            tmp3 = [tmp3 stringByAppendingString:str];
-        }
-        
-        //NSLog(@"size = %i , 16Byte = %@",reomveHeaderSize,tmp3);
-        
-        // 6. create a CMSampleBuffer.
-        CMSampleBufferRef sbRef = NULL;
-        const size_t sampleSizeArray[] = {static_cast<size_t>(dataLength)};
-        status = CMSampleBufferCreate(kCFAllocatorDefault, videoBlock, true, NULL, NULL, _videoFormatDescr, 1, 0, NULL, 1, sampleSizeArray, &sbRef);
-        (void)status;
-        //NSLog(@"SampleBufferCreate: %@", (status == noErr) ? @"successfully." : @"failed.");
-        
-        // 7. use VTDecompressionSessionDecodeFrame
-        VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
-        VTDecodeInfoFlags flagOut;
-        status = VTDecompressionSessionDecodeFrame(_session, sbRef, flags, NULL, &flagOut);
-        //NSLog(@"VTDecompressionSessionDecodeFrame: %@", (status == noErr) ? @"successfully." : @"failed.");
-        
-        CFRelease(sbRef);
-        sbRef = NULL;
-        
+    [self defer:^{
         CFRelease(videoBlock);
-        videoBlock = NULL;
+    }];
+    
+    int reomveHeaderSize = dataLength - 4;
+    const uint8_t sourceBytes[] = {(uint8_t)(reomveHeaderSize >> 24), (uint8_t)(reomveHeaderSize >> 16), (uint8_t)(reomveHeaderSize >> 8), (uint8_t)reomveHeaderSize};
+    status = CMBlockBufferReplaceDataBytes(sourceBytes, videoBlock, 0, 4);
+    if (status != noErr) {
+        NSLog(@"CMBlockBufferReplaceDataBytes failed: %d", (int)status);
+        return status;
     }
     
-    return status;
+    NSString *tmp3 = @"";
+    for (int i = 0; i < sizeof(sourceBytes); i++)
+    {
+        NSString *str = [NSString stringWithFormat:@" %.2X",sourceBytes[i]];
+        tmp3 = [tmp3 stringByAppendingString:str];
+    }
+    
+    CMSampleBufferRef sbRef = NULL;
+    const size_t sampleSizeArray[] = {static_cast<size_t>(dataLength)};
+    status = CMSampleBufferCreate(kCFAllocatorDefault, videoBlock, true, NULL, NULL, _videoFormatDescr, 1, 0, NULL, 1, sampleSizeArray, &sbRef);
+    if (status != noErr) {
+        NSLog(@"CMSampleBufferCreate failed: %d", (int)status);
+        return status;
+    }
+    [self defer:^{
+        CFRelease(sbRef);
+    }];
+    
+    VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
+    VTDecodeInfoFlags flagOut;
+    status = VTDecompressionSessionDecodeFrame(_session, sbRef, flags, NULL, &flagOut);
+    if (status != noErr) {
+        NSLog(@"VTDecompressionSessionDecodeFrame failed: %d", (int)status);
+        return status;
+    }
+
+    return noErr;
+}
+
+- (void)defer:(void (^)(void))block {
+    __strong void(^deferBlock)(void) __attribute__((cleanup(blockCleanUp), unused)) = block;
 }
 
 @end
