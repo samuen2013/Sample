@@ -91,17 +91,16 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
     NSLog(@"subStrings count: %lu", (unsigned long)subStrings.count);
     for (NSString *subString in subStrings) {
         if (subString.length > 2) { // & 0x7E, >> 1
-            if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '0') { // VPS, 0x20
-                NSLog(@"get vps");
+            if ([subString hasPrefix:@"40"]) { // VPS, 0x20
+                NSLog(@"get vps: %@", subString);
                 vpsRange = [dataHex rangeOfString:subString];
-            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '2') { // SPS, 0x21
-                NSLog(@"get sps");
+            } else if ([subString hasPrefix:@"42"]) { // SPS, 0x21
+                NSLog(@"get sps: %@", subString);
                 spsRange = [dataHex rangeOfString:subString];
-            } else if ([subString characterAtIndex:0] == '4' && [subString characterAtIndex:1] == '4') { // PPS, 0x22
-                NSLog(@"get pps");
+            } else if ([subString hasPrefix:@"44"]) { // PPS, 0x22
+                NSLog(@"get pps: %@", subString);
                 ppsRange = [dataHex rangeOfString:subString];
-            } else if ([subString characterAtIndex:0] == '2' && [subString characterAtIndex:1] == '6') { // IDR, 0x13
-                NSLog(@"get IDR");
+            } else if ([subString hasPrefix:@"26"]) { // IDR, 0x13
                 if (vpsRange.location == NSNotFound || spsRange.location == NSNotFound || ppsRange.location == NSNotFound) {
                     return S_FAIL;
                 }
@@ -116,14 +115,23 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
                 if ([self initDecoder:vpsData spsData:spsData ppsData:ppsData] != noErr) {
                     return S_FAIL;
                 }
-                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
+                
+                auto rawString = [dataHex rangeOfString:@"0000000126"];
+                auto rawDataRange = NSMakeRange(rawString.location, dataHex.length - rawString.location + 1);
+                NSData *rawData = [frameData subdataWithRange:NSMakeRange(rawDataRange.location / 2, rawDataRange.length / 2)];
+                if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr) {
                     return S_FAIL;
                 }
-            } else if ([subString characterAtIndex:0] == '0' && [subString characterAtIndex:1] == '2') { // p-frame, 0x01
+                return S_OK;
+            } else if ([subString hasPrefix:@"02"]) { // p-frame, 0x01
                 NSLog(@"get p-frame");
-                if ([self decodeData:frameData range:[dataHex rangeOfString:subString]] != S_OK) {
+                auto rawString = [dataHex rangeOfString:@"0000000102"];
+                auto rawDataRange = NSMakeRange(rawString.location, dataHex.length - rawString.location + 1);
+                NSData *rawData = [frameData subdataWithRange:NSMakeRange(rawDataRange.location / 2, rawDataRange.length / 2)];
+                if ([self decodeWithBytes:(Byte *)rawData.bytes length:(int)rawData.length] != noErr) {
                     return S_FAIL;
                 }
+                return S_OK;
             } else {
                 NSLog(@"unhandle %@", subString);
             }
@@ -157,8 +165,7 @@ void h265VideoDecompressionOutputCallback(void * CM_NULLABLE decompressionOutput
                 callback.decompressionOutputRefCon = (__bridge void * _Nullable)(self);
                 
                 NSDictionary *attributes = @{
-                    (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
-                    (id)kCVPixelBufferOpenGLCompatibilityKey: [NSNumber numberWithBool:true]
+                    (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
                 };
                 status = VTDecompressionSessionCreate(kCFAllocatorDefault, _videoFormatDescr, NULL, (__bridge CFDictionaryRef)attributes, &callback, &_session);
                 
