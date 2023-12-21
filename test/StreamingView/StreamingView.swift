@@ -237,12 +237,14 @@ extension StreamingView: FrameManagerWrapperDelegate {
             self?.metalView.didReceive(metadata)
         }
     }
-    func hardwareDecoderDidDecode(with imageBuffer: CVImageBuffer!) {
+    func didDecode(with imageBuffer: CVImageBuffer!) {
         metalView.render(with: imageBuffer)
         
         streamingFrameSize = CGSize(width: CVPixelBufferGetWidth(imageBuffer), height: CVPixelBufferGetHeight(imageBuffer))
     }
-    func softwareDecoderDidDecode(with pFrame: UnsafeMutablePointer<AVFrame>!, width: CGFloat, height: CGFloat, pixelFormat: AVPixelFormat) {
-        metalView.render(with: pFrame, width: uint(width), height: uint(height), pixelFormat: pixelFormat)
+    func didDecode(with avFrame: UnsafeMutablePointer<AVFrame>!, width: CGFloat, height: CGFloat, pixelFormat: AVPixelFormat) {
+        metalView.render(with: avFrame, width: uint(width), height: uint(height), pixelFormat: pixelFormat)
+        
+        streamingFrameSize = CGSize(width: width, height: height)
     }
 }

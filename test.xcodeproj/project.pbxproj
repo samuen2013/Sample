@@ -92,6 +92,7 @@
 		5056C8262B30301900CD37ED /* H265NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H265NalUnit.swift; sourceTree = "<group>"; };
 		5056C8272B30301900CD37ED /* H264NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H264NalUnit.swift; sourceTree = "<group>"; };
 		5056C8282B30301900CD37ED /* NalUnitParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitParser.swift; sourceTree = "<group>"; };
+		507611A42B340CC900A33B70 /* H265Decoder_ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder_ffmpeg.h; sourceTree = "<group>"; };
 		5090A407293DDED400AE5AFF /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5090A40A293DDED400AE5AFF /* testApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testApp.swift; sourceTree = "<group>"; };
 		5090A40C293DDED400AE5AFF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -292,6 +293,7 @@
 				50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */,
 				50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */,
 				50D432B62B2989BA006664E4 /* VideoDecoder.h */,
+				507611A42B340CC900A33B70 /* H265Decoder_ffmpeg.h */,
 			);
 			path = FrameManager;
 			sourceTree = "<group>";

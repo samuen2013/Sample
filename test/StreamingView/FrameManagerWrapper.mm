@@ -12,6 +12,7 @@
 #import "FrameManager/AudioDecoder.h"
 #import "FrameManager/H264Decoder.h"
 #import "FrameManager/H265Decoder.h"
+#import "FrameManager/H265Decoder_ffmpeg.h"
 #import "NSData+Hex.h"
 #import "test-Swift.h"
 
@@ -27,7 +28,8 @@ typedef struct {
 
 @property (assign, nonatomic) FrameManager *frameManager;
 @property (strong, nonatomic) H264Decoder *h264VideoDecoder;
-@property (strong, nonatomic) H265Decoder *h265VideoDecoder;
+@property (assign, nonatomic) H265DecoderFFMpeg *h265VideoDecoder;
+//@property (strong, nonatomic) H265Decoder *h265VideoDecoder;
 @property (assign, nonatomic) VideoDecoder* videoSWDecoder;
 
 @property (strong, nonatomic) RemoteIOPlayer *audioRenderer;
@@ -160,8 +162,7 @@ typedef struct {
     }
     
     if (_h265VideoDecoder) {
-        _h265VideoDecoder.delegate = nil;
-        [_h265VideoDecoder release];
+        delete _h265VideoDecoder;
         _h265VideoDecoder = nil;
     }
     
@@ -301,7 +302,7 @@ typedef struct {
 }
 
 - (void)didDecodeWithImageBuffer:(CVImageBufferRef)imageBuffer {
-    [_delegate hardwareDecoderDidDecodeWithImageBuffer:imageBuffer];
+    [_delegate didDecodeWithImageBuffer:imageBuffer];
 }
 
 - (SCODE)hardwareDecode:(TMediaDataPacketInfo *)packet {
@@ -316,12 +317,24 @@ typedef struct {
         return [_h264VideoDecoder decodeFrame:frameData];
     } else if (_lastestVideoStreamType == mctHEVC) {
         if (!_h265VideoDecoder) {
-            _h265VideoDecoder = [[H265Decoder alloc] init];
-            _h265VideoDecoder.delegate = self;
+            _h265VideoDecoder = new H265DecoderFFMpeg();
+            if (_h265VideoDecoder->InitDecoder() != 0) {
+                delete _h265VideoDecoder;
+                _h265VideoDecoder = nil;
+                return S_FAIL;
+            }
         }
         
-        auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
-        return [_h265VideoDecoder decodeFrame:frameData];
+        AVFrame *pFrame = av_frame_alloc();
+        if (_h265VideoDecoder->Decode(packet, pFrame) == 0) {
+            auto buffer = (CVImageBufferRef)pFrame->data[3];
+            [_delegate didDecodeWithImageBuffer:buffer];
+        } else {
+            av_frame_free(&pFrame);
+            return S_FAIL;
+        }
+        av_frame_free(&pFrame);
+        return S_OK;
     } else {
         NSLog(@"unsupport codec: %u", _lastestVideoStreamType);
         return S_FAIL;
@@ -337,10 +350,10 @@ typedef struct {
     
     AVFrame *pFrame = av_frame_alloc();
     if (_videoSWDecoder->Decode(packet, pFrame)) {
-        [_delegate softwareDecoderDidDecodeWithAVFrame:pFrame
-                                                 width:_videoSWDecoder->GetCodecContext()->width
-                                                height:_videoSWDecoder->GetCodecContext()->height
-                                           pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
+        [_delegate didDecodeWithAVFrame:pFrame
+                                  width:_videoSWDecoder->GetCodecContext()->width
+                                 height:_videoSWDecoder->GetCodecContext()->height
+                            pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
     } else {
         av_frame_free(&pFrame);
         return S_FAIL;

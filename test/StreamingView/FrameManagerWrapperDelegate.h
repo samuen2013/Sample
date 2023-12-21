@@ -21,7 +21,7 @@
 - (void)didChangeStreamingVideoCodec:(StreamingVideoCodec)streamingVideoCodec;
 - (void)didReceiveUnsupportedVideoCodec;
 - (void)didReceiveMetadata:(Metadata *)metadata;
-- (void)hardwareDecoderDidDecodeWithImageBuffer:(CVImageBufferRef)imageBuffer;
-- (void)softwareDecoderDidDecodeWithAVFrame:(AVFrame *)pFrame width:(CGFloat)width height:(CGFloat)height pixelFormat:(enum AVPixelFormat)pixelFormat;
+- (void)didDecodeWithImageBuffer:(CVImageBufferRef)imageBuffer;
+- (void)didDecodeWithAVFrame:(AVFrame *)avFrame width:(CGFloat)width height:(CGFloat)height pixelFormat:(enum AVPixelFormat)pixelFormat;
 
 @end
