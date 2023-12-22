@@ -9,9 +9,6 @@ extern "C" {
 #define AVMediaType FFMpeg_AVMediaType
 #include <libavcodec/avcodec.h>
 #undef AVMediaType
-#define AVMediaType Cocoa_AVMediaType
-#include <AVFoundation/AVFoundation.h>
-#undef AVMediaType
 
 #ifdef __cplusplus
 }
