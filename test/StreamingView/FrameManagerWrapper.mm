@@ -96,7 +96,6 @@ typedef struct {
     [self releaseAudioRelatedResource];
     
     if (_frameManager) {
-        _frameManager->releaseAll();
         delete _frameManager;
         _frameManager = nil;
     }
@@ -105,7 +104,8 @@ typedef struct {
 }
 
 - (void)releaseAll {
-    _frameManager->releaseAll();
+    [self releaseVideoRelatedResource];
+    [self releaseAudioRelatedResource];
 }
 
 - (void)cleanBuffer {
@@ -326,21 +326,18 @@ typedef struct {
         }
         
         AVFrame *pFrame = av_frame_alloc();
-        if (_h265VideoDecoder->Decode(packet, pFrame) == 0) {
-            auto buffer = (CVImageBufferRef)pFrame->data[3];
-            [_delegate didDecodeWithImageBuffer:buffer];
-        } else {
+        if (_h265VideoDecoder->Decode(packet, pFrame) != 0) {
             av_frame_free(&pFrame);
             return S_FAIL;
+
         }
+        [_delegate didDecodeWithImageBuffer:(CVImageBufferRef)pFrame->data[3]];
         av_frame_free(&pFrame);
         return S_OK;
     } else {
         NSLog(@"unsupport codec: %u", _lastestVideoStreamType);
         return S_FAIL;
     }
-    
-    return S_FAIL;
 }
 
 - (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {

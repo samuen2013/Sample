@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 enum AVPixelFormat hw_pix_fmt;
-
 static enum AVPixelFormat get_hw_format(AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts)
 {
     const enum AVPixelFormat *p;
@@ -108,13 +107,13 @@ public:
         avpkt.size = ptMediaDataPacket->dwBitstreamSize;
         
         auto ret = avcodec_send_packet(pCodecCtxt, &avpkt);
-        if (ret < 0) {
+        if (ret != 0) {
             fprintf(stderr, "avcodec_send_packet failed, %d\n", ret);
             return ret;
         }
         
         ret = avcodec_receive_frame(pCodecCtxt, pFrame);
-        if (ret < 0) {
+        if (ret != 0) {
             fprintf(stderr, "avcodec_receive_frame failed, %d\n", ret);
             return ret;
         }
@@ -128,6 +127,7 @@ public:
     
 private:
     AVBufferRef *hw_device_ctx = NULL;
+    
     AVCodec *pCodec = NULL;
     AVCodecContext *pCodecCtxt = NULL;
 };
