@@ -78,7 +78,6 @@
 		5056C8192B30262800CD37ED /* H265Decoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder.h; sourceTree = "<group>"; };
 		5056C81A2B3028E300CD37ED /* H265Decoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = H265Decoder.mm; sourceTree = "<group>"; };
 		5056C81C2B302A1500CD37ED /* HWDecoderDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HWDecoderDelegate.h; sourceTree = "<group>"; };
-		507611A42B340CC900A33B70 /* H265Decoder_ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder_ffmpeg.h; sourceTree = "<group>"; };
 		5090A407293DDED400AE5AFF /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5090A40A293DDED400AE5AFF /* testApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testApp.swift; sourceTree = "<group>"; };
 		5090A40C293DDED400AE5AFF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -264,7 +263,6 @@
 				50D432B02B2989BA006664E4 /* RemoteIOPlayer.h */,
 				50D432B22B2989BA006664E4 /* RemoteIOPlayer.mm */,
 				50D432B62B2989BA006664E4 /* VideoDecoder.h */,
-				507611A42B340CC900A33B70 /* H265Decoder_ffmpeg.h */,
 			);
 			path = FrameManager;
 			sourceTree = "<group>";
