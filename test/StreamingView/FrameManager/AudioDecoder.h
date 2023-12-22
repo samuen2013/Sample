@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #undef AVMediaType
 #define AVMediaType FFMpeg_AVMediaType
 #include <libavcodec/avcodec.h>
@@ -11,14 +12,15 @@ extern "C" {
 #define AVMediaType Cocoa_AVMediaType
 #include <AVFoundation/AVFoundation.h>
 #undef AVMediaType
+
 #ifdef __cplusplus
 }
 #endif
 
-#include "VideoDecoder.h"
 #include "G726Decoder.h"
 
-extern boost::mutex g_CodecInitMutex;
+#include <boost/thread/mutex.hpp>
+static boost::mutex g_CodecInitMutex;
 
 #define MAX_AUDIO_FRAME_SIZE 192000
 

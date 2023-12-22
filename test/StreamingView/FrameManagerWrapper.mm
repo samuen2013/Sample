@@ -66,7 +66,6 @@ typedef struct {
     self = [super init];
     if (self) {
         _frameManager = new FrameManager();
-        VideoDecoder::Init();
         _videoWidth = 0;
         _videoHeight = 0;
         
@@ -342,20 +341,23 @@ typedef struct {
 
 - (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {
     if (!_videoSWDecoder) {
-        _videoSWDecoder = new VideoDecoder(packet->dwStreamType);
+        _videoSWDecoder = new VideoDecoder();
+        if (_videoSWDecoder->InitSoftwareDecoder(_lastestVideoStreamType) != 0) {
+            delete _videoSWDecoder;
+            _videoSWDecoder = nil;
+            return S_FAIL;
+        }
     }
     
     AVFrame *pFrame = av_frame_alloc();
-    if (_videoSWDecoder->Decode(packet, pFrame)) {
-        [_delegate didDecodeWithAVFrame:pFrame
-                                  width:_videoSWDecoder->GetCodecContext()->width
-                                 height:_videoSWDecoder->GetCodecContext()->height
-                            pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
-    } else {
+    if (_videoSWDecoder->Decode(packet, pFrame) != 0) {
         av_frame_free(&pFrame);
         return S_FAIL;
     }
-    
+    [_delegate didDecodeWithAVFrame:pFrame
+                              width:_videoSWDecoder->GetCodecContext()->width
+                             height:_videoSWDecoder->GetCodecContext()->height
+                        pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
     av_frame_free(&pFrame);
     return S_OK;
 }
