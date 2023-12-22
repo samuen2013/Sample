@@ -8,13 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5056C81B2B3028E300CD37ED /* H265Decoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5056C81A2B3028E300CD37ED /* H265Decoder.mm */; };
-		5056C8292B30301900CD37ED /* CMSampleBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */; };
-		5056C82A2B30301900CD37ED /* UnsafePointer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */; };
-		5056C82D2B30301900CD37ED /* NalUnitProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8232B30301900CD37ED /* NalUnitProtocol.swift */; };
-		5056C82E2B30301900CD37ED /* VideoPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8242B30301900CD37ED /* VideoPacket.swift */; };
-		5056C8302B30301900CD37ED /* H265NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8262B30301900CD37ED /* H265NalUnit.swift */; };
-		5056C8312B30301900CD37ED /* H264NalUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8272B30301900CD37ED /* H264NalUnit.swift */; };
-		5056C8322B30301900CD37ED /* NalUnitParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5056C8282B30301900CD37ED /* NalUnitParser.swift */; };
 		5090A40B293DDED400AE5AFF /* testApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5090A40A293DDED400AE5AFF /* testApp.swift */; };
 		5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5090A40C293DDED400AE5AFF /* ContentView.swift */; };
 		5090A40F293DDED500AE5AFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5090A40E293DDED500AE5AFF /* Assets.xcassets */; };
@@ -85,13 +78,6 @@
 		5056C8192B30262800CD37ED /* H265Decoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder.h; sourceTree = "<group>"; };
 		5056C81A2B3028E300CD37ED /* H265Decoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = H265Decoder.mm; sourceTree = "<group>"; };
 		5056C81C2B302A1500CD37ED /* HWDecoderDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HWDecoderDelegate.h; sourceTree = "<group>"; };
-		5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMSampleBuffer+Extension.swift"; sourceTree = "<group>"; };
-		5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UnsafePointer+Extension.swift"; sourceTree = "<group>"; };
-		5056C8232B30301900CD37ED /* NalUnitProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitProtocol.swift; sourceTree = "<group>"; };
-		5056C8242B30301900CD37ED /* VideoPacket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPacket.swift; sourceTree = "<group>"; };
-		5056C8262B30301900CD37ED /* H265NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H265NalUnit.swift; sourceTree = "<group>"; };
-		5056C8272B30301900CD37ED /* H264NalUnit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = H264NalUnit.swift; sourceTree = "<group>"; };
-		5056C8282B30301900CD37ED /* NalUnitParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NalUnitParser.swift; sourceTree = "<group>"; };
 		507611A42B340CC900A33B70 /* H265Decoder_ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H265Decoder_ffmpeg.h; sourceTree = "<group>"; };
 		5090A407293DDED400AE5AFF /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5090A40A293DDED400AE5AFF /* testApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testApp.swift; sourceTree = "<group>"; };
@@ -194,20 +180,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5056C81E2B30301900CD37ED /* VideoDecoder */ = {
-			isa = PBXGroup;
-			children = (
-				5056C81F2B30301900CD37ED /* CMSampleBuffer+Extension.swift */,
-				5056C8202B30301900CD37ED /* UnsafePointer+Extension.swift */,
-				5056C8232B30301900CD37ED /* NalUnitProtocol.swift */,
-				5056C8242B30301900CD37ED /* VideoPacket.swift */,
-				5056C8262B30301900CD37ED /* H265NalUnit.swift */,
-				5056C8272B30301900CD37ED /* H264NalUnit.swift */,
-				5056C8282B30301900CD37ED /* NalUnitParser.swift */,
-			);
-			path = VideoDecoder;
-			sourceTree = "<group>";
-		};
 		5090A3FE293DDED400AE5AFF = {
 			isa = PBXGroup;
 			children = (
@@ -228,7 +200,6 @@
 		5090A409293DDED400AE5AFF /* test */ = {
 			isa = PBXGroup;
 			children = (
-				5056C81E2B30301900CD37ED /* VideoDecoder */,
 				50D4332D2B299F08006664E4 /* ButtonStyle */,
 				50D433202B2996A4006664E4 /* Charmander */,
 				50D433092B298D19006664E4 /* extension.swift */,
@@ -482,28 +453,23 @@
 				50D433272B2996A4006664E4 /* CharmanderError.swift in Sources */,
 				50D432E72B2989BA006664E4 /* FisheyeMeshImpl.swift in Sources */,
 				50D433192B299659006664E4 /* ViewCellStatus.swift in Sources */,
-				5056C8322B30301900CD37ED /* NalUnitParser.swift in Sources */,
 				50D432EA2B2989BA006664E4 /* fisheye_version.swift in Sources */,
 				50D432F02B2989BA006664E4 /* MetalRenderer.swift in Sources */,
 				50D433452B299F08006664E4 /* NakedIconMediumSecondaryButtonStyle.swift in Sources */,
 				50D433432B299F08006664E4 /* SheetMenuButtonStyle.swift in Sources */,
 				50D432EC2B2989BA006664E4 /* FisheyePTZController.swift in Sources */,
-				5056C8312B30301900CD37ED /* H264NalUnit.swift in Sources */,
 				50D4332A2B2996A4006664E4 /* CharmanderLogType.swift in Sources */,
 				50D4331A2B299659006664E4 /* StreamingViewAction.swift in Sources */,
 				50D432E42B2989BA006664E4 /* NSData+Hex.m in Sources */,
 				50D432E92B2989BA006664E4 /* FisheyeMesh.swift in Sources */,
 				50D432F62B2989BA006664E4 /* LCTextLayer.swift in Sources */,
-				5056C82D2B30301900CD37ED /* NalUnitProtocol.swift in Sources */,
 				50D433422B299F08006664E4 /* OvalGhostLargePrimaryButtonStyle.swift in Sources */,
-				5056C82E2B30301900CD37ED /* VideoPacket.swift in Sources */,
 				50D432E22B2989BA006664E4 /* FrameManager.mm in Sources */,
 				50D432EF2B2989BA006664E4 /* MetalTextureCache.swift in Sources */,
 				50D4334C2B299F08006664E4 /* SolidLargePrimaryButtonStyle.swift in Sources */,
 				50D432E32B2989BA006664E4 /* H264Decoder.mm in Sources */,
 				50D433482B299F08006664E4 /* SolidLargeSpecialButtonStyle.swift in Sources */,
 				50D4332C2B299C60006664E4 /* NavigationBarColor.swift in Sources */,
-				5056C8302B30301900CD37ED /* H265NalUnit.swift in Sources */,
 				50D432E12B2989BA006664E4 /* RemoteIOPlayer.mm in Sources */,
 				50D4331B2B299659006664E4 /* StreamingViewWrapper.swift in Sources */,
 				50D432DF2B2989BA006664E4 /* DataBrokerWrapper.mm in Sources */,
@@ -519,14 +485,12 @@
 				5090A40D293DDED400AE5AFF /* ContentView.swift in Sources */,
 				50D432FB2B2989BA006664E4 /* Vector2D.swift in Sources */,
 				50D432DE2B2989BA006664E4 /* StreamingView.swift in Sources */,
-				5056C8292B30301900CD37ED /* CMSampleBuffer+Extension.swift in Sources */,
 				50D432F22B2989BA006664E4 /* MetalView.swift in Sources */,
 				50D433442B299F08006664E4 /* GhostMediumSecondaryButtonStyle.swift in Sources */,
 				50D432FC2B2989BA006664E4 /* Point3D.swift in Sources */,
 				50D432E82B2989BA006664E4 /* FisheyePositionController.swift in Sources */,
 				50D4334D2B299F08006664E4 /* RoundedMediumSecondaryButtonStyle.swift in Sources */,
 				50D4333F2B299F08006664E4 /* GhostLargeSecondaryButtonStyle.swift in Sources */,
-				5056C82A2B30301900CD37ED /* UnsafePointer+Extension.swift in Sources */,
 				50D4334A2B299F08006664E4 /* OvalMediumPrimaryButtonStyle.swift in Sources */,
 				5056C81B2B3028E300CD37ED /* H265Decoder.mm in Sources */,
 				50D432E02B2989BA006664E4 /* FrameParser.mm in Sources */,
