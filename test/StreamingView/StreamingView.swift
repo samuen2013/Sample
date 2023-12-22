@@ -20,7 +20,7 @@ class StreamingView: UIView, ObservableObject {
     
     private var dataBrokerWrapper: DataBrokerWrapper!
     private var frameManagerWrapper: FrameManagerWrapper!
-    private var metalView: MetalView!
+    private var metalView: MetalView?
     
     private var isStreamingObjectsReleased = false
     private var status: StreamingStatus = .initial {
@@ -52,8 +52,8 @@ class StreamingView: UIView, ObservableObject {
         frameManagerWrapper = FrameManagerWrapper()
         frameManagerWrapper.delegate = self
         metalView = MetalView(frame: bounds)
-        metalView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin, .flexibleWidth, .flexibleHeight]
-        addSubview(metalView)
+        metalView?.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin, .flexibleWidth, .flexibleHeight]
+        addSubview(metalView!)
         autoresizesSubviews = true
     }
     
@@ -63,7 +63,7 @@ class StreamingView: UIView, ObservableObject {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        metalView.frame = bounds
+        metalView?.frame = bounds
     }
 }
 
@@ -104,7 +104,7 @@ extension StreamingView {
     func stopStreaming(with status: StreamingStatus) {
         dataBrokerWrapper.stopStreaming()
         frameManagerWrapper.releaseAll()
-        metalView.clear()
+        metalView?.clear()
         
         self.status = status
     }
@@ -140,24 +140,24 @@ extension StreamingView {
     
     func snapshot() -> UIImage? {
         if UIApplication.shared.applicationState != .background {
-            return metalView.snapUIImage()
+            return metalView?.snapUIImage()
         } else {
             return nil
         }
     }
     
     func setFisheyeDewarpType(_ type: FisheyeDewarpType) {
-        metalView.setFisheyeDewarpType(type.rawValue)
-        metalView.drawableSize = bounds.size
-        metalView.autoResizeDrawable = true
+        metalView?.setFisheyeDewarpType(type.rawValue)
+        metalView?.drawableSize = bounds.size
+        metalView?.autoResizeDrawable = true
     }
     
     func setFisheyePanLocation(by offset: CGSize) {
-        metalView.setLocationWithPoints(0.0, begY: 0.0, endX: offset.width * 1.3, endY: offset.height * 1.3)
+        metalView?.setLocationWithPoints(0.0, begY: 0.0, endX: offset.width * 1.3, endY: offset.height * 1.3)
     }
     
     func setFisheyeZoomScale(with deltaX: CGFloat) {
-        metalView.setScaleWithDeltaX(deltaX)
+        metalView?.setScaleWithDeltaX(deltaX)
     }
     
     func changeSpeed(_ speed: Float) {
@@ -175,8 +175,8 @@ extension StreamingView {
             frameManagerWrapper.releaseAll()
             frameManagerWrapper = nil
             
-            metalView.clear()
-            metalView.removeFromSuperview()
+            metalView?.clear()
+            metalView?.removeFromSuperview()
             metalView = nil
             
             isStreamingObjectsReleased = true
@@ -201,27 +201,27 @@ extension StreamingView: FrameManagerWrapperDelegate {
     }
     func didChange(_ type: FisheyeMountType) {
         DispatchQueue.main.async { [weak self] in
-            self?.metalView.setFisheyeMountType(type)
+            self?.metalView?.setFisheyeMountType(type)
             self?.delegate?.didChangeFisheyeMountType(type)
         }
     }
     func didChangeFisheyeDewrap(_ type: EFisheyeDewarpType) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            let oldType = metalView.getFisheyeDewarpType()
+            guard let oldType = metalView?.getFisheyeDewarpType() else { return }
             if (type == eFeDewarpNone && oldType == eFeDewarpFullHD) || (type == eFeDewarpFullHD && oldType != eFeDewarpFullHD) {
-                metalView.setFisheyeDewarpType(Int(type.rawValue))
+                metalView?.setFisheyeDewarpType(Int(type.rawValue))
             }
         }
     }
     func didChangeFisheyeRenderInfo(_ info: TRenderInfo) {
         DispatchQueue.main.async { [weak self] in
-            self?.metalView.setRenderInfo(info)
+            self?.metalView?.setRenderInfo(info)
         }
     }
     func didChangeFisheyeRenderType(_ type: ERenderType) {
         DispatchQueue.main.async { [weak self] in
-            self?.metalView.setRenderType(type)
+            self?.metalView?.setRenderType(type)
         }
     }
     func didChange(_ streamingVideoCodec: StreamingVideoCodec) {
@@ -234,16 +234,16 @@ extension StreamingView: FrameManagerWrapperDelegate {
     }
     func didReceive(_ metadata: Metadata!) {
         DispatchQueue.main.async { [weak self] in
-            self?.metalView.didReceive(metadata)
+            self?.metalView?.didReceive(metadata)
         }
     }
     func didDecode(with imageBuffer: CVImageBuffer!) {
-        metalView.render(with: imageBuffer)
+        metalView?.render(with: imageBuffer)
         
         streamingFrameSize = CGSize(width: CVPixelBufferGetWidth(imageBuffer), height: CVPixelBufferGetHeight(imageBuffer))
     }
     func didDecode(with avFrame: UnsafeMutablePointer<AVFrame>!, width: CGFloat, height: CGFloat, pixelFormat: AVPixelFormat) {
-        metalView.render(with: avFrame, width: uint(width), height: uint(height), pixelFormat: pixelFormat)
+        metalView?.render(with: avFrame, width: uint(width), height: uint(height), pixelFormat: pixelFormat)
         
         streamingFrameSize = CGSize(width: width, height: height)
     }
