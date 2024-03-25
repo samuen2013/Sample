@@ -1,17 +1,28 @@
 #ifndef _AVSYNC2AP_FRAMEMANAGER_H_
 #define _AVSYNC2AP_FRAMEMANAGER_H_
 
-#include <queue>
 #include <memory>
 
-class PacketQueue;
+class FrameInfo {
+public:
+    TMediaDataPacketInfo *packet = nullptr;
+    long timestamp = 0;
+    int width = 0;
+    int height = 0;
+    bool IFrame = false;
+    
+    FrameInfo(TMediaDataPacketInfo *packet, bool timeFromExt = false);
+    virtual ~FrameInfo();
+    
+private:
+    long retrieveTimestamp(bool fromExt);
+};
+
 class FrameManager
 {
 public:
-	FrameManager();
-	~FrameManager();
-    
-    static void removeOnePacket(TMediaDataPacketInfoV3 **packetV3);
+    FrameManager();
+    ~FrameManager();
     
     void releaseAll();
     void releaseVideoRelated();
@@ -21,24 +32,23 @@ public:
     void resume();
     void setSpeed(float speed);
     
-    void inputVideoPacket(TMediaDataPacketInfo *packet);
-    void inputAudioPacket(TMediaDataPacketInfo *packet);
+    void inputVideo(std::shared_ptr<FrameInfo> frame);
+    void inputAudio(std::shared_ptr<FrameInfo> frame);
     
-    SCODE getVideoFrame(TMediaDataPacketInfo **pptMediaDataPacket);
-    SCODE getAudioFrame(TMediaDataPacketInfo **pptMediaDataPacket);
+    std::shared_ptr<FrameInfo> getVideoFrame();
+    std::shared_ptr<FrameInfo> getAudioFrame();
     
 private:
-    long parseTimestamp(TMediaDataPacketInfo *packet);
     void pureVideoQueue();
     
-    std::shared_ptr<PacketQueue> m_videoQueue;
-    std::shared_ptr<PacketQueue> m_audioQueue;
+    boost::mutex m_videoListMutex;
+    boost::mutex m_audioListMutex;
+    std::list<std::shared_ptr<FrameInfo>> m_videoList;
+    std::list<std::shared_ptr<FrameInfo>> m_audioList;
 
     bool m_pause = false;
     
     long m_firstDecodeTS = 0;
-    long m_lastDecodeTS = 0;
-    
     long m_firstPacketTS = 0;
     long m_lastPacketTS = 0;
     

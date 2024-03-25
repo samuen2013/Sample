@@ -195,7 +195,7 @@ extension StreamingView: DataBrokerWrapperDelegate {
 }
 
 extension StreamingView: FrameManagerWrapperDelegate {
-    func didChangeStreamingTimestamp(_ timestamp: UInt32) {
+    func didChangeStreamingTimestamp(_ timestamp: UInt) {
         delegate?.didChangeStreamingDate(Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(timestamp))))
         status = .connected
     }

@@ -13,7 +13,7 @@
 @class Metadata;
 @protocol FrameManagerWrapperDelegate<NSObject>
 
-- (void)didChangeStreamingTimestamp:(unsigned int)timestamp;
+- (void)didChangeStreamingTimestamp:(unsigned long)timestamp;
 - (void)didChangeFisheyeMountType:(FisheyeMountType)type;
 - (void)didChangeFisheyeDewrapType:(EFisheyeDewarpType)type;
 - (void)didChangeFisheyeRenderInfo:(TRenderInfo)info;

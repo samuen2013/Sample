@@ -39,7 +39,7 @@ typedef struct {
 @property (assign, nonatomic) DWORD videoHeight;
 
 @property (assign, nonatomic) DWORD lastestVideoStreamType;
-@property (assign, nonatomic) unsigned int latestFrameTime;
+@property (assign, nonatomic) unsigned long latestFrameTime;
 @property (assign, nonatomic) FisheyeMountType latestMountType;
 
 @property (assign, nonatomic) bool useRecordingTime;
@@ -151,8 +151,7 @@ typedef struct {
             _videoDecodeThread = [[NSThread alloc]initWithTarget:self selector:@selector(decodeVideo) object:nil];
             [_videoDecodeThread start];
         }
-        
-        _frameManager->inputVideoPacket(packet);
+        _frameManager->inputVideo(std::make_shared<FrameInfo>(packet, _useRecordingTime));
     } else if (packet->dwStreamType <= mctDMYA) {
         //just support aac, amr, g726, g711 and g711a
         if (packet->dwStreamType != mctAAC &&
@@ -198,7 +197,7 @@ typedef struct {
             }
         }
         
-        _frameManager->inputAudioPacket(packet);
+        _frameManager->inputAudio(std::make_shared<FrameInfo>(packet, _useRecordingTime));
     } else if (packet->dwStreamType == mctMETJ) {
         auto data = [NSData dataWithBytes:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize];
         auto jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -381,29 +380,26 @@ typedef struct {
 - (void)decodeVideo {
     NSLog(@"start to decode video");
     
-    TMediaDataPacketInfo* packet = NULL;
     while (!_releaseVideoRelated) {
-        auto ret = _frameManager->getVideoFrame(&packet);
-        if (ret != S_OK || packet == NULL) {
-            [NSThread sleepForTimeInterval:0.5f];
+        auto frame = _frameManager->getVideoFrame();
+        if (frame == nullptr) {
+            usleep(1 * 1000);
             continue;
         }
         
-        [NSThread sleepForTimeInterval:0.01f];
-        [self decodePacket:packet];
+        if (_videoWidth != frame->width || _videoHeight != frame->height) {
+            _videoWidth = frame->width;
+            _videoHeight = frame->height;
+        }
+        
+        [self decodePacket:frame->packet];
+        [self updateStreamingTimestamp:(frame->timestamp / 1000)];
     }
     
     NSLog(@"end to decode video");
 }
 
 - (void)decodePacket:(TMediaDataPacketInfo *)packet {
-    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
-    // if video resize in server
-    if (_videoWidth != packetV3->tIfEx.dwWidth || _videoHeight != packetV3->tIfEx.dwHeight) {
-        _videoWidth = packetV3->tIfEx.dwWidth;
-        _videoHeight = packetV3->tIfEx.dwHeight;
-    }
-    
     [self hardwareDecode:packet];
 //    if (_supportHardwareDecode) {
 //        if ([self hardwareDecode:packet] != S_OK) {
@@ -414,33 +410,9 @@ typedef struct {
 //    } else {
 //        [self softwareDecode:packet];
 //    }
-    
-    [self parseStreamingTimestamp:packet];
-    
-    FrameManager::removeOnePacket(&packetV3);
 }
 
-- (void)parseStreamingTimestamp:(TMediaDataPacketInfo *)packet {
-    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
-    if (_useRecordingTime) {
-        VVTK::SDK::Utility::BitstreamReader reader(packetV3->tIfEx.tRv1.tExt.pbyTLVExt + sizeof(DWORD), packetV3->tIfEx.tRv1.tExt.dwTLVExtLen - sizeof(DWORD));
-        while (reader.Available()) {
-            DWORD dwTag = 0;
-            DWORD dwLength = DataPacket_GetTagLength(reader, dwTag);
-            if (dwTag == 0x61) {
-                auto second = reader.GetBits<32>();
-                [self updateStreamingTimestamp:second];
-                break;
-            } else {
-                reader.SkipBytes(dwLength);
-            }
-        }
-    } else {
-        [self updateStreamingTimestamp:packetV3->dwUTCTime];
-    }
-}
-
-- (void)updateStreamingTimestamp:(unsigned int)timestamp {
+- (void)updateStreamingTimestamp:(unsigned long)timestamp {
     if (timestamp != _latestFrameTime) {
         _latestFrameTime = timestamp;
         [_delegate didChangeStreamingTimestamp:timestamp];
@@ -529,19 +501,10 @@ typedef struct {
 
 - (SCODE)didDecodeWithAudioBuffer:(uint8_t *)audioBuffer audioBufSize:(int *)audioBufSize {
 #ifndef __clang_analyzer__
-    TMediaDataPacketInfo *packet = nullptr;
-    auto scRet = _frameManager->getAudioFrame(&packet);
-    if (scRet != S_OK) return S_FAIL;
+    auto frame = _frameManager->getAudioFrame();
+    if (frame == nullptr) return S_FAIL;
     
-    auto result = _audioDecoder->Decode(packet, (int16_t *)audioBuffer, audioBufSize);
-    if (result == 0) {
-        _audioFrameSecond = packet->dwFirstUnitSecond;
-        _audioFrameMilliSecond = packet->dwFirstUnitMilliSecond;
-    }
-    
-    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
-    FrameManager::removeOnePacket(&packetV3);
-    
+    auto result = _audioDecoder->Decode(frame->packet, (int16_t *)audioBuffer, audioBufSize);
     return (_playAudio && result == 0) ? S_OK : S_FAIL;
 #endif
 }
