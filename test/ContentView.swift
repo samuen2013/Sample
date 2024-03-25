@@ -26,9 +26,9 @@ let channelRange: ClosedRange<Int> = 0...31
 struct ContentView: View {
     @StateObject var viewModel = ViewModel()
     
-    @State private var ip = "172.18.1.232"
+    @State private var ip = "10.17.101.12"
     @State private var port: Double? = 80
-    @AppStorage("connectDeviceUser") private var connectDeviceUser = "root"
+    @AppStorage("connectDeviceUser") private var connectDeviceUser = "admin"
     @AppStorage("connectDevicePassword") private var connectDevicePassword = "vssdtest123"
     
     private let streams: [Int] = [0, 1]

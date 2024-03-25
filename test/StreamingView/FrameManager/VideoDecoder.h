@@ -40,7 +40,7 @@ class VideoDecoder
     
 public:
     VideoDecoder() {}
-	~VideoDecoder() {
+    ~VideoDecoder() {
         boost::mutex::scoped_lock lock(mutex);
         
         if (hw_device_ctx) {
@@ -51,7 +51,7 @@ public:
             avcodec_close(pCodecCtxt);
             av_free(pCodecCtxt);
         }
-	}
+    }
     
     int InitHardwareDecoder(DWORD dwStreamType) {
         boost::mutex::scoped_lock lock(mutex);
@@ -119,7 +119,7 @@ public:
         return 0;
     }
 
-	int Decode(TMediaDataPacketInfo* ptMediaDataPacket, AVFrame *pFrame) {
+    int Decode(TMediaDataPacketInfo* ptMediaDataPacket, AVFrame *pFrame) {
         boost::mutex::scoped_lock lock(mutex);
         
         AVPacket avpkt;
@@ -139,11 +139,11 @@ public:
             return ret;
         }
         return 0;
-	};
+    };
 
-	AVCodecContext* GetCodecContext() {
+    AVCodecContext* GetCodecContext() {
         return pCodecCtxt;
-	}
+    }
 
 private:
     AVCodec* getAVCodec(DWORD dwStreamType) {

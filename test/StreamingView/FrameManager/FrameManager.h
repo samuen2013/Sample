@@ -14,29 +14,35 @@ public:
     static void removeOnePacket(TMediaDataPacketInfoV3 **packetV3);
     
     void releaseAll();
-    void pause();
-    void resume();
-    
-    void inputVideoPacket(TMediaDataPacketInfo *packet);
-    void inputAudioPacket(TMediaDataPacketInfo *packet);
     void releaseVideoRelated();
     void releaseAudioRelated();
     
-    SCODE getVideoFrame(TMediaDataPacketInfo **pptMediaDataPacket, long diff);
+    void pause();
+    void resume();
+    void setSpeed(float speed);
+    
+    void inputVideoPacket(TMediaDataPacketInfo *packet);
+    void inputAudioPacket(TMediaDataPacketInfo *packet);
+    
+    SCODE getVideoFrame(TMediaDataPacketInfo **pptMediaDataPacket);
     SCODE getAudioFrame(TMediaDataPacketInfo **pptMediaDataPacket);
-    TMediaDataPacketInfo* firstVideoPacket();
-    TMediaDataPacketInfo* firstAudioPacket();
     
 private:
-    SCODE nextVideoFrame(TMediaDataPacketInfo **pptMediaDataPacket, long targetPTS);
-    
-    bool m_pause = false;
+    long parseTimestamp(TMediaDataPacketInfo *packet);
+    void pureVideoQueue();
     
     std::shared_ptr<PacketQueue> m_videoQueue;
     std::shared_ptr<PacketQueue> m_audioQueue;
 
-    bool m_bDropPFrame = false;
-    bool m_bIntraFrameNeverAdded = true;
+    bool m_pause = false;
+    
+    long m_firstDecodeTS = 0;
+    long m_lastDecodeTS = 0;
+    
+    long m_firstPacketTS = 0;
+    long m_lastPacketTS = 0;
+    
+    float m_speed = 1.0;
 };
 
 #endif // _AVSYNC2AP_FRAMEMANAGER_H_

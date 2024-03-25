@@ -8,7 +8,6 @@
 
 #import "H264Decoder.h"
 #import "NSData+Hex.h"
-#import "test-Swift.h"
 
 @interface H264Decoder ()
 {

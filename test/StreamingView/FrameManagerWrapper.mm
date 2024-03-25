@@ -11,7 +11,6 @@
 #import "FrameManager/VideoDecoder.h"
 #import "FrameManager/AudioDecoder.h"
 #import "FrameManager/H264Decoder.h"
-#import "FrameManager/H265Decoder.h"
 #import "NSData+Hex.h"
 #import "test-Swift.h"
 
@@ -19,7 +18,6 @@ typedef struct {
     DWORD dwAudioStreamType;
     DWORD dwAudioSamplingFreq;
     DWORD dwAudioChannelNum;
-    BYTE  byG726Pack;
     DWORD dwBitRate;
 } AudioSettings;
 
@@ -44,11 +42,6 @@ typedef struct {
 @property (assign, nonatomic) unsigned int latestFrameTime;
 @property (assign, nonatomic) FisheyeMountType latestMountType;
 
-@property (assign, nonatomic) long firstDecodeTS;
-@property (assign, nonatomic) long firstPacketTS;
-@property (assign, nonatomic) long lastDecodeTS;
-@property (assign, nonatomic) long lastPacketTS;
-@property (assign, nonatomic) float speed;
 @property (assign, nonatomic) bool useRecordingTime;
 @property (assign, nonatomic) bool supportHardwareDecode;
 
@@ -60,6 +53,7 @@ typedef struct {
 
 @implementation FrameManagerWrapper
 
+//MARK: - public
 - (id)init {
     self = [super init];
     if (self) {
@@ -71,11 +65,6 @@ typedef struct {
         _latestFrameTime = 0;
         _latestMountType = FisheyeMountTypeUnknown;
         
-        _firstDecodeTS = 0;
-        _firstPacketTS = 0;
-        _lastDecodeTS = 0;
-        _lastPacketTS = 0;
-        _speed = 1.0;
         _useRecordingTime = false;
         _supportHardwareDecode = true;
         
@@ -89,8 +78,7 @@ typedef struct {
 }
 
 - (void)dealloc {
-    [self releaseVideoRelatedResource];
-    [self releaseAudioRelatedResource];
+    [self releaseAll];
     
     if (_frameManager) {
         delete _frameManager;
@@ -101,6 +89,7 @@ typedef struct {
 }
 
 - (void)releaseAll {
+    _frameManager->releaseAll();
     [self releaseVideoRelatedResource];
     [self releaseAudioRelatedResource];
 }
@@ -115,8 +104,6 @@ typedef struct {
 }
 
 - (void)resume {
-    _firstPacketTS = 0;
-    _firstDecodeTS = 0;
     _frameManager->resume();
 }
 
@@ -129,234 +116,11 @@ typedef struct {
 }
 
 - (void)setSpeed:(float)speed {
-    _speed = speed;
-    _firstPacketTS = 0;
-    _firstDecodeTS = 0;
-    _lastPacketTS = 0;
-    _lastDecodeTS = 0;
+    _frameManager->setSpeed(speed);
 }
 
 - (void)setUseRecordingTime:(bool)useRecordingTime {
     _useRecordingTime = useRecordingTime;
-}
-
-- (void)releaseVideoRelatedResource {
-    _firstPacketTS = 0;
-    _firstDecodeTS = 0;
-    _supportHardwareDecode = true;
-    
-    _frameManager->releaseVideoRelated();
-    
-    if (_h264VideoDecoder) {
-        _h264VideoDecoder.delegate = nil;
-        [_h264VideoDecoder release];
-        _h264VideoDecoder = nil;
-    }
-    
-    if (_h265VideoDecoder) {
-        delete _h265VideoDecoder;
-        _h265VideoDecoder = nil;
-    }
-    
-    if (_videoSWDecoder) {
-        delete _videoSWDecoder;
-        _videoSWDecoder = nil;
-    }
-    
-    if (_videoDecodeThread) {
-        _releaseVideoRelated = true;
-        [_videoDecodeThread cancel];
-        _videoDecodeThread = nil;
-    }
-}
-
-- (void)releaseAudioRelatedResource {
-    _frameManager->releaseAudioRelated();
-    
-    if (_audioRenderer) {
-        [_audioRenderer stop];
-        [_audioRenderer cleanUp];
-        [_audioRenderer release];
-        _audioRenderer = NULL;
-    }
-    
-    if (_audioDecoder) {
-        delete _audioDecoder;
-        _audioDecoder = NULL;
-    }
-}
-
-- (void)decodeVideo {
-    TMediaDataPacketInfo* packet = NULL;
-
-    while (!_releaseVideoRelated) {
-        if (_firstDecodeTS == 0 && _firstPacketTS == 0) {
-            auto ret = _frameManager->getVideoFrame(&packet, 0);
-            if (ret != S_OK || packet == NULL)
-            {
-                usleep(1 * 1000);
-                continue;
-            }
-            
-            [self decodePacket:packet];
-            continue;
-        }
-        
-        if (![self isNextPacketTime])
-        {
-            usleep(1 * 1000);
-            continue;
-        }
-        
-        auto ret = _frameManager->getVideoFrame(&packet, _firstDecodeTS - _firstPacketTS);
-        if (ret != S_OK || packet == NULL)
-        {
-            usleep(1 * 1000);
-            continue;
-        }
-        
-        [self decodePacket:packet];
-    }
-}
-
-- (bool)isNextPacketTime {
-    auto packet = _frameManager->firstVideoPacket();
-    
-    if (packet == nullptr) return false;
-    
-    long dts = floorl([[NSDate date] timeIntervalSince1970] * 1000);
-    long pts = (long)packet->dwFirstUnitSecond * 1000 + packet->dwFirstUnitMilliSecond;
-    long frameInterval = pts - _lastPacketTS;
-    bool segmentJump = frameInterval > 100;
-    
-    // In case timestamp diff over 100ms between last/current packet, decode state reset as initial
-    if (segmentJump) {
-        _firstPacketTS = 0;
-        _firstDecodeTS = 0;
-        return false;
-    } else {
-        return (dts - _lastDecodeTS >= (pts - _lastPacketTS) / _speed);
-    }
-}
-
-- (void)decodePacket:(TMediaDataPacketInfo *)packet {
-    auto dts = floorl([[NSDate date] timeIntervalSince1970] * 1000);
-    auto pts = (long)packet->dwFirstUnitSecond * 1000 + packet->dwFirstUnitMilliSecond;
-    
-    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
-    if (_useRecordingTime) {
-        VVTK::SDK::Utility::BitstreamReader reader(packetV3->tIfEx.tRv1.tExt.pbyTLVExt + sizeof(DWORD), packetV3->tIfEx.tRv1.tExt.dwTLVExtLen - sizeof(DWORD));
-        while (reader.Available()) {
-            DWORD dwTag = 0;
-            DWORD dwLength = DataPacket_GetTagLength(reader, dwTag);
-            if (dwTag == 0x61) {
-                auto second = reader.GetBits<32>();
-                if (_latestFrameTime != second) {
-                    _latestFrameTime = second;
-                    [_delegate didChangeStreamingTimestamp:second];
-                }
-                break;
-            } else {
-                reader.SkipBytes(dwLength);
-            }
-        }
-    } else {
-        auto second = packetV3->dwUTCTime;
-        if (second != _latestFrameTime) {
-            _latestFrameTime = second;
-            [_delegate didChangeStreamingTimestamp:second];
-        }
-    }
-    
-    // if video resize in server
-    if (_videoWidth != packetV3->tIfEx.dwWidth || _videoHeight != packetV3->tIfEx.dwHeight) {
-        _videoWidth = packetV3->tIfEx.dwWidth;
-        _videoHeight = packetV3->tIfEx.dwHeight;
-    }
-
-    [self sleepToWaitAudio:packet];
-    
-    if (_supportHardwareDecode) {
-        if ([self hardwareDecode:packet] != S_OK) {
-            NSLog(@"HW decode fail, switch to SW decode");
-            _supportHardwareDecode = false;
-            [self softwareDecode:packet];
-        }
-    } else {
-        [self softwareDecode:packet];
-    }
-    
-    if (_firstDecodeTS == 0) {
-        _firstDecodeTS = dts;
-    }
-    if (_firstPacketTS == 0) {
-        _firstPacketTS = pts;
-    }
-    _lastDecodeTS = dts;
-    _lastPacketTS = pts;
-    
-    FrameManager::removeOnePacket(&packetV3);
-}
-
-- (void)didDecodeWithImageBuffer:(CVImageBufferRef)imageBuffer {
-    [_delegate didDecodeWithImageBuffer:imageBuffer];
-}
-
-- (SCODE)hardwareDecode:(TMediaDataPacketInfo *)packet {
-    if (_lastestVideoStreamType == mctH264) {
-        if (!_h264VideoDecoder) {
-            _h264VideoDecoder = [[H264Decoder alloc] init];
-            _h264VideoDecoder.delegate = self;
-        }
-        
-        // Extract H.264 slices and decode with HWDecoder
-        auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
-        return [_h264VideoDecoder decodeFrame:frameData];
-    } else if (_lastestVideoStreamType == mctHEVC) {
-        if (!_h265VideoDecoder) {
-            _h265VideoDecoder = new VideoDecoder();
-            if (_h265VideoDecoder->InitHardwareDecoder(_lastestVideoStreamType) != 0) {
-                delete _h265VideoDecoder;
-                _h265VideoDecoder = nil;
-                return S_FAIL;
-            }
-        }
-        
-        AVFrame *pFrame = av_frame_alloc();
-        if (_h265VideoDecoder->Decode(packet, pFrame) != 0) {
-            av_frame_free(&pFrame);
-            return S_FAIL;
-        }
-        [_delegate didDecodeWithImageBuffer:(CVImageBufferRef)pFrame->data[3]];
-        av_frame_free(&pFrame);
-        return S_OK;
-    } else {
-        NSLog(@"unsupport hardware decode codec: %u", _lastestVideoStreamType);
-        return S_FAIL;
-    }
-}
-
-- (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {
-    if (!_videoSWDecoder) {
-        _videoSWDecoder = new VideoDecoder();
-        if (_videoSWDecoder->InitSoftwareDecoder(_lastestVideoStreamType) != 0) {
-            delete _videoSWDecoder;
-            _videoSWDecoder = nil;
-            return S_FAIL;
-        }
-    }
-    
-    AVFrame *pFrame = av_frame_alloc();
-    if (_videoSWDecoder->Decode(packet, pFrame) != 0) {
-        av_frame_free(&pFrame);
-        return S_FAIL;
-    }
-    [_delegate didDecodeWithAVFrame:pFrame
-                              width:_videoSWDecoder->GetCodecContext()->width
-                             height:_videoSWDecoder->GetCodecContext()->height
-                        pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
-    av_frame_free(&pFrame);
-    return S_OK;
 }
 
 - (void)inputPacket:(TMediaDataPacketInfo *)packet {
@@ -407,16 +171,15 @@ typedef struct {
             _audioSettings.dwAudioStreamType = packet->dwStreamType;
             _audioSettings.dwAudioSamplingFreq = packet->dwAudioSamplingFreq;
             _audioSettings.dwAudioChannelNum = packet->byAudioChannelNum;
-            _audioSettings.byG726Pack = audioExtraInfo->byG726Pack;
             _audioSettings.dwBitRate = audioExtraInfo->dwBitRate;
             
             //release audio renderer
-            _frameManager->releaseAudioRelated();
+            [self releaseAudioRelatedResource];
         }
         
         if (!_audioDecoder) {
-            auto codeConfig = [self getAudioCodeConfig:packet->dwStreamType audioSamplingFreq:packet->dwAudioSamplingFreq];
-            _audioDecoder = new AudioDecoder(packet->dwStreamType, codeConfig, audioExtraInfo->byG726Pack, audioExtraInfo->dwBitRate);
+            NSLog(@"Initial AudioDecoder, dwStreamType: %u, dwAudioSamplingFreq: %u, dwBitRate: %u", packet->dwStreamType, packet->dwAudioSamplingFreq, audioExtraInfo->dwBitRate);
+            _audioDecoder = new AudioDecoder(packet->dwStreamType, packet->dwAudioSamplingFreq, audioExtraInfo->dwBitRate);
         }
         
         if (!_audioRenderer) {
@@ -450,6 +213,50 @@ typedef struct {
         } else {
             [metadata release];
         }
+    }
+}
+
+//MARK: - private
+- (void)releaseVideoRelatedResource {
+    _frameManager->releaseVideoRelated();
+    _supportHardwareDecode = true;
+    
+    if (_h264VideoDecoder) {
+        _h264VideoDecoder.delegate = nil;
+        [_h264VideoDecoder release];
+        _h264VideoDecoder = nil;
+    }
+    
+    if (_h265VideoDecoder) {
+        delete _h265VideoDecoder;
+        _h265VideoDecoder = nil;
+    }
+    
+    if (_videoSWDecoder) {
+        delete _videoSWDecoder;
+        _videoSWDecoder = nil;
+    }
+    
+    if (_videoDecodeThread) {
+        _releaseVideoRelated = true;
+        [_videoDecodeThread cancel];
+        _videoDecodeThread = nil;
+    }
+}
+
+- (void)releaseAudioRelatedResource {
+    _frameManager->releaseAudioRelated();
+    
+    if (_audioRenderer) {
+        [_audioRenderer stop];
+        [_audioRenderer cleanUp];
+        [_audioRenderer release];
+        _audioRenderer = NULL;
+    }
+    
+    if (_audioDecoder) {
+        delete _audioDecoder;
+        _audioDecoder = NULL;
     }
 }
 
@@ -571,14 +378,134 @@ typedef struct {
     }
 }
 
-- (DWORD)getAudioCodeConfig:(DWORD)streamType audioSamplingFreq:(DWORD)audioSamplingFreq {
-    if (streamType != mctAAC) return 0;
+- (void)decodeVideo {
+    NSLog(@"start to decode video");
     
-    if (audioSamplingFreq == 48000) return 4496;
-    else if (audioSamplingFreq == 44100) return 4624;
-    else if (audioSamplingFreq == 32000) return 4752;
-    else if (audioSamplingFreq == 16000) return 5136;
-    else return 5520;
+    TMediaDataPacketInfo* packet = NULL;
+    while (!_releaseVideoRelated) {
+        auto ret = _frameManager->getVideoFrame(&packet);
+        if (ret != S_OK || packet == NULL) {
+            [NSThread sleepForTimeInterval:0.5f];
+            continue;
+        }
+        
+        [NSThread sleepForTimeInterval:0.01f];
+        [self decodePacket:packet];
+    }
+    
+    NSLog(@"end to decode video");
+}
+
+- (void)decodePacket:(TMediaDataPacketInfo *)packet {
+    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
+    // if video resize in server
+    if (_videoWidth != packetV3->tIfEx.dwWidth || _videoHeight != packetV3->tIfEx.dwHeight) {
+        _videoWidth = packetV3->tIfEx.dwWidth;
+        _videoHeight = packetV3->tIfEx.dwHeight;
+    }
+    
+    [self hardwareDecode:packet];
+//    if (_supportHardwareDecode) {
+//        if ([self hardwareDecode:packet] != S_OK) {
+//            NSLog(@"HW decode fail, switch to SW decode");
+//            _supportHardwareDecode = false;
+//            [self softwareDecode:packet];
+//        }
+//    } else {
+//        [self softwareDecode:packet];
+//    }
+    
+    [self parseStreamingTimestamp:packet];
+    
+    FrameManager::removeOnePacket(&packetV3);
+}
+
+- (void)parseStreamingTimestamp:(TMediaDataPacketInfo *)packet {
+    auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
+    if (_useRecordingTime) {
+        VVTK::SDK::Utility::BitstreamReader reader(packetV3->tIfEx.tRv1.tExt.pbyTLVExt + sizeof(DWORD), packetV3->tIfEx.tRv1.tExt.dwTLVExtLen - sizeof(DWORD));
+        while (reader.Available()) {
+            DWORD dwTag = 0;
+            DWORD dwLength = DataPacket_GetTagLength(reader, dwTag);
+            if (dwTag == 0x61) {
+                auto second = reader.GetBits<32>();
+                [self updateStreamingTimestamp:second];
+                break;
+            } else {
+                reader.SkipBytes(dwLength);
+            }
+        }
+    } else {
+        [self updateStreamingTimestamp:packetV3->dwUTCTime];
+    }
+}
+
+- (void)updateStreamingTimestamp:(unsigned int)timestamp {
+    if (timestamp != _latestFrameTime) {
+        _latestFrameTime = timestamp;
+        [_delegate didChangeStreamingTimestamp:timestamp];
+    }
+}
+
+- (void)didDecodeWithImageBuffer:(CVImageBufferRef)imageBuffer {
+    [_delegate didDecodeWithImageBuffer:imageBuffer];
+}
+
+- (SCODE)hardwareDecode:(TMediaDataPacketInfo *)packet {
+    if (_lastestVideoStreamType == mctH264) {
+        if (!_h264VideoDecoder) {
+            _h264VideoDecoder = [[H264Decoder alloc] init];
+            _h264VideoDecoder.delegate = self;
+        }
+        
+        // Extract H.264 slices and decode with HWDecoder
+        auto frameData = [NSData dataWithBytesNoCopy:packet->pbyBuff + packet->dwOffset length:packet->dwBitstreamSize freeWhenDone:NO];
+        return [_h264VideoDecoder decodeFrame:frameData];
+    } else if (_lastestVideoStreamType == mctHEVC) {
+        if (!_h265VideoDecoder) {
+            _h265VideoDecoder = new VideoDecoder();
+            if (_h265VideoDecoder->InitHardwareDecoder(_lastestVideoStreamType) != 0) {
+                delete _h265VideoDecoder;
+                _h265VideoDecoder = nil;
+                return S_FAIL;
+            }
+        }
+        
+        AVFrame *pFrame = av_frame_alloc();
+        if (_h265VideoDecoder->Decode(packet, pFrame) != 0) {
+            av_frame_free(&pFrame);
+            return S_FAIL;
+        }
+        [_delegate didDecodeWithImageBuffer:(CVImageBufferRef)pFrame->data[3]];
+        av_frame_free(&pFrame);
+        return S_OK;
+    } else {
+        NSLog(@"unsupport hardware decode codec: %u", _lastestVideoStreamType);
+        return S_FAIL;
+    }
+}
+
+- (SCODE)softwareDecode:(TMediaDataPacketInfo *)packet {
+    if (!_videoSWDecoder) {
+        _videoSWDecoder = new VideoDecoder();
+        if (_videoSWDecoder->InitSoftwareDecoder(_lastestVideoStreamType) != 0) {
+            delete _videoSWDecoder;
+            _videoSWDecoder = nil;
+            return S_FAIL;
+        }
+    }
+    
+    AVFrame *pFrame = av_frame_alloc();
+    if (_videoSWDecoder->Decode(packet, pFrame) != 0) {
+        av_frame_free(&pFrame);
+        return S_FAIL;
+    }
+    [_delegate didDecodeWithAVFrame:pFrame
+                              width:_videoSWDecoder->GetCodecContext()->width
+                             height:_videoSWDecoder->GetCodecContext()->height
+                        pixelFormat:AVPixelFormat(_videoSWDecoder->GetCodecContext()->pix_fmt)];
+    av_frame_free(&pFrame);
+    return S_OK;
 }
 
 - (void)sleepToWaitAudio:(TMediaDataPacketInfo *)packet {
@@ -597,40 +524,25 @@ typedef struct {
     return _audioSettings.dwAudioStreamType == packet->dwStreamType &&
         _audioSettings.dwAudioSamplingFreq == packet->dwAudioSamplingFreq &&
         _audioSettings.dwAudioChannelNum == packet->byAudioChannelNum &&
-        _audioSettings.byG726Pack == audioExtraInfo->byG726Pack &&
         _audioSettings.dwBitRate == audioExtraInfo->dwBitRate;
 }
 
-- (SCODE)didDecodeWithAudioBuffer:(uint8_t *)audioBuffer audioBufSize:(int *)audioBufSize { 
+- (SCODE)didDecodeWithAudioBuffer:(uint8_t *)audioBuffer audioBufSize:(int *)audioBufSize {
 #ifndef __clang_analyzer__
-    if (_lastPacketTS == 0) return S_FAIL; // In case video frame not decoded yet
-    
-    auto nextPacket = _frameManager->firstAudioPacket();
-    if (nextPacket == NULL) return S_FAIL;
-    
-    auto nextPTS = (long)nextPacket->dwFirstUnitSecond * 1000 + nextPacket->dwFirstUnitMilliSecond;
-    auto limitStart = _lastPacketTS - 50;
-    auto limitEnd = _lastPacketTS + 50;
-    if (nextPTS > limitEnd) return S_FAIL;
-    
     TMediaDataPacketInfo *packet = nullptr;
     auto scRet = _frameManager->getAudioFrame(&packet);
     if (scRet != S_OK) return S_FAIL;
     
-    int result = 0;
-    if (limitStart <= nextPTS)
-    {
-        result = _audioDecoder->Decode(packet, (int16_t *)audioBuffer, audioBufSize);
-        if (result != 0) {
-            _audioFrameSecond = packet->dwFirstUnitSecond;
-            _audioFrameMilliSecond = packet->dwFirstUnitMilliSecond;
-        }
+    auto result = _audioDecoder->Decode(packet, (int16_t *)audioBuffer, audioBufSize);
+    if (result == 0) {
+        _audioFrameSecond = packet->dwFirstUnitSecond;
+        _audioFrameMilliSecond = packet->dwFirstUnitMilliSecond;
     }
     
     auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
     FrameManager::removeOnePacket(&packetV3);
     
-    return (_playAudio && result != 0) ? S_OK : S_FAIL;
+    return (_playAudio && result == 0) ? S_OK : S_FAIL;
 #endif
 }
 

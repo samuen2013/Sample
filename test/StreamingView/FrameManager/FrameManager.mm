@@ -26,69 +26,51 @@ class PacketQueue
 {
 public:
     PacketQueue() {}
-    ~PacketQueue()
-    {
+    ~PacketQueue() {
         releaseAll();
     }
     
-    size_t count()
-    {
+    size_t count() {
         boost::mutex::scoped_lock lock(m_queueMutex);
         return m_queue.size();
     }
-    
-    TMediaDataPacketInfo* pop()
-    {
+    TMediaDataPacketInfo* pop() {
         boost::mutex::scoped_lock lock(m_queueMutex);
-        
-        if (m_queue.empty())
-            return nullptr;
+        if (m_queue.empty()) return nullptr;
         
         auto packet = m_queue.front();
         m_queue.pop();
         return packet;
     }
-    
-    TMediaDataPacketInfo* first()
-    {
+    TMediaDataPacketInfo* first() {
         boost::mutex::scoped_lock lock(m_queueMutex);
-        
-        if (m_queue.empty())
-            return nullptr;
-        
-        auto packet = m_queue.front();
-        return packet;
+        return m_queue.front();
     }
-    
-    void input(TMediaDataPacketInfo *packet)
-    {
+    TMediaDataPacketInfo* last() {
         boost::mutex::scoped_lock lock(m_queueMutex);
-        
+        return m_queue.back();
+    }
+    void input(TMediaDataPacketInfo *packet) {
+        boost::mutex::scoped_lock lock(m_queueMutex);
         auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
         auto ptFuntionTable = packetV3->tIfEx.tRv1.tExt.ptFunctionTable;
-        if (ptFuntionTable)
-        {
+        if (ptFuntionTable) {
             ptFuntionTable->pfAddRef(packetV3);
         }
-        
         m_queue.push(packet);
     }
-    
-    void releaseAll()
-    {
+    void releaseAll() {
         boost::mutex::scoped_lock lock(m_queueMutex);
-        
-        while (!m_queue.empty())
-        {
-            auto packet = (TMediaDataPacketInfoV3 *)m_queue.front();
+        while (!m_queue.empty()) {
+            auto packet = (TMediaDataPacketInfoV3 *) m_queue.front();
             m_queue.pop();
-            
             FrameManager::removeOnePacket(&packet);
         }
     }
     
 private:
     boost::mutex m_queueMutex;
+    
     std::queue<TMediaDataPacketInfo *> m_queue;
 };
 
@@ -111,6 +93,20 @@ void FrameManager::releaseAll()
     m_pause = false;
 }
 
+void FrameManager::releaseVideoRelated()
+{
+    m_videoQueue->releaseAll();
+    m_firstDecodeTS = 0;
+    m_firstPacketTS = 0;
+    m_lastDecodeTS = 0;
+    m_lastPacketTS = 0;
+}
+
+void FrameManager::releaseAudioRelated()
+{
+    m_audioQueue->releaseAll();
+}
+
 void FrameManager::pause()
 {
     m_pause = true;
@@ -119,27 +115,20 @@ void FrameManager::pause()
 void FrameManager::resume()
 {
     m_pause = false;
+    m_firstDecodeTS = 0;
+    m_firstPacketTS = 0;
 }
 
-void FrameManager::releaseVideoRelated()
+void FrameManager::setSpeed(float speed)
 {
-    m_videoQueue->releaseAll();
-}
-
-void FrameManager::releaseAudioRelated()
-{
-    m_audioQueue->releaseAll();
+    m_speed = speed;
+    m_firstDecodeTS = 0;
+    m_firstPacketTS = 0;
+    m_lastDecodeTS = 0;
+    m_lastPacketTS = 0;
 }
 
 void FrameManager::inputVideoPacket(TMediaDataPacketInfo *packet) {
-    if (m_bIntraFrameNeverAdded && packet->tFrameType != MEDIADB_FRAME_INTRA) {
-        auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
-        removeOnePacket(&packetV3);
-        return;
-    } else if (m_bIntraFrameNeverAdded && packet->tFrameType == MEDIADB_FRAME_INTRA) {
-        m_bIntraFrameNeverAdded = false;
-    }
-    
     m_videoQueue->input(packet);
 }
 
@@ -147,58 +136,109 @@ void FrameManager::inputAudioPacket(TMediaDataPacketInfo *packet) {
     m_audioQueue->input(packet);
 }
 
-TMediaDataPacketInfo* FrameManager::firstVideoPacket() {
-    return m_videoQueue->first();
+long FrameManager::parseTimestamp(TMediaDataPacketInfo *packet) {
+    return packet != nullptr ? (long)packet->dwFirstUnitSecond * 1000 + packet->dwFirstUnitMilliSecond : 0;
 }
 
-TMediaDataPacketInfo* FrameManager::firstAudioPacket() {
-    return m_audioQueue->first();
-}
-
-SCODE FrameManager::getVideoFrame(TMediaDataPacketInfo **packet, long diff)
+SCODE FrameManager::getVideoFrame(TMediaDataPacketInfo **packet)
 {
     if (m_pause) return S_FAIL;
-    if (m_videoQueue->count() < 5) return S_FAIL;
     
-    auto dts = floorl([[NSDate date] timeIntervalSince1970] * 1000);
-    auto targetPTS = dts - diff;
-    if (m_videoQueue->count() > 45) return nextVideoFrame(packet, targetPTS);
-
-    *packet = m_videoQueue->pop();
-    return *packet != nullptr ? S_OK : S_FAIL;
-}
-
-SCODE FrameManager::nextVideoFrame(TMediaDataPacketInfo **packet, long targetPTS)
-{
-    auto lastPacket = m_videoQueue->pop();
-    while (lastPacket != nullptr) {
-        auto nextPacket = m_videoQueue->first();
-        if (nextPacket == nullptr) {
-            *packet = lastPacket;
-            break;
-        }
-        
-        auto lastPTS = (long)lastPacket->dwFirstUnitSecond * 1000 + lastPacket->dwFirstUnitMilliSecond;
-        auto nextPTS = (long)nextPacket->dwFirstUnitSecond * 1000 + nextPacket->dwFirstUnitMilliSecond;
-        if (lastPTS <= targetPTS && targetPTS < nextPTS)
-        {
-            *packet = lastPacket;
-            break;
-        }
-        
-        auto lastPacketV3 = (TMediaDataPacketInfoV3 *)lastPacket;
-        removeOnePacket(&lastPacketV3);
-        
-        lastPacket = m_videoQueue->pop();
+    auto now = floorl([[NSDate date] timeIntervalSince1970] * 1000);
+    if (m_firstDecodeTS == 0) {
+        if (m_videoQueue->count() == 0) return S_FAIL;
+        *packet = m_videoQueue->pop();
+        m_firstDecodeTS = now;
+        m_lastDecodeTS = now;
+        auto pts = parseTimestamp(*packet);
+        m_firstPacketTS = pts;
+        m_lastPacketTS = pts;
+        return S_OK;
     }
     
-    return *packet != nullptr ? S_OK : S_FAIL;
+    auto targetPacketTS = m_firstPacketTS + (now - m_firstDecodeTS); // need to consider speed
+    if (m_videoQueue->count() == 0) {
+//        m_firstDecodeTS = now;
+//        m_firstPacketTS = targetPacketTS;
+        NSLog(@"video queue is empty, update firstDecodeTS and firstPacketTS");
+        return S_FAIL;
+    }
+    
+    auto nextPacketTS = parseTimestamp(m_videoQueue->first());
+    if ((nextPacketTS - m_lastPacketTS) > 2000) {
+        // segment jump, there is no recording from 'm_lastPacketTS' to 'nextPacketTS'
+        NSLog(@"segment jump, there is no recording from '%ld' to '%ld'", m_lastPacketTS, nextPacketTS);
+        *packet = m_videoQueue->pop();
+        m_firstDecodeTS = now;
+        m_lastDecodeTS = now;
+        auto pts = parseTimestamp(*packet);
+        m_firstPacketTS = pts;
+        m_lastPacketTS = pts;
+        return S_OK;
+    } else if (nextPacketTS > targetPacketTS) {
+        // render too fast, need to wait
+        return S_FAIL;
+    } else {
+        *packet = m_videoQueue->pop();
+        m_lastDecodeTS = now;
+        auto pts = parseTimestamp(*packet);
+        m_lastPacketTS = pts;
+        pureVideoQueue();
+        return S_OK;
+    }
+}
+
+void FrameManager::pureVideoQueue() {
+    if (m_videoQueue->count() < 2) return;
+    if (parseTimestamp(m_videoQueue->last()) - parseTimestamp(m_videoQueue->first()) <= 4000) {
+        return;
+    }
+    
+    auto newVideoQueue = std::make_shared<PacketQueue>();
+    
+    auto foundI = false;
+    auto drop = 0;
+    do {
+        auto packet = m_videoQueue->pop();
+        if (foundI) {
+            if (packet->tFrameType == MEDIADB_FRAME_INTRA) {
+                newVideoQueue->input(packet);
+            } else {
+                auto packetV3 = (TMediaDataPacketInfoV3 *)packet;
+                removeOnePacket(&packetV3);
+                drop++;
+            }
+        } else {
+            if (packet->tFrameType == MEDIADB_FRAME_INTRA) {
+                foundI = true;
+            }
+            newVideoQueue->input(packet);
+        }
+    } while(m_videoQueue->count() > 0);
+    m_videoQueue = newVideoQueue;
+    
+    NSLog(@"FrameManager, drop %d packets from video queue", drop);
 }
 
 SCODE FrameManager::getAudioFrame(TMediaDataPacketInfo **packet)
 {
     if (m_pause) return S_FAIL;
+    if (m_lastPacketTS == 0) return S_FAIL;
     
-    *packet = m_audioQueue->pop();
-    return *packet != nullptr ? S_OK : S_FAIL;
+    auto nextPacket = m_audioQueue->first();
+    if (nextPacket == nullptr) return S_FAIL;
+    
+    auto nextPTS = (long)nextPacket->dwFirstUnitSecond * 1000 + nextPacket->dwFirstUnitMilliSecond;
+    auto limitStart = m_lastPacketTS - 50;
+    auto limitEnd = m_lastPacketTS + 50;
+    if (nextPTS > limitEnd) return S_FAIL;
+    
+    if (limitStart <= nextPTS) {
+        *packet = m_audioQueue->pop();
+        return *packet != nullptr ? S_OK : S_FAIL;
+    } else {
+        auto packet = (TMediaDataPacketInfoV3 *)m_audioQueue->pop();
+        removeOnePacket(&packet);
+        return S_FAIL;
+    }
 }
